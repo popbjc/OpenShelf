@@ -1,0 +1,2 @@
+/* Privacy prompt shown when OpenShelf asks Finder for the selection. */
+NSAppleEventsUsageDescription = "OpenShelf 会向访达询问当前选中了哪些文件，让快捷键能为它们打开转盘；在转换成 Pages、Numbers 或 Keynote 格式时，会请这些 App 另存一份副本。它绝不会改动你的文件。";

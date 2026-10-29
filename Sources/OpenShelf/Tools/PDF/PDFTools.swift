@@ -13,14 +13,14 @@ enum PDFToolError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unreadable(let url): "“\(url.lastPathComponent)” couldn’t be opened as a PDF."
-        case .locked(let url): "“\(url.lastPathComponent)” is password-protected."
-        case .unwritable(let url): "“\(url.lastPathComponent)” couldn’t be saved."
-        case .nothingToSave: "There are no pages to save."
+        case .unreadable(let url): LF("“%@” couldn’t be opened as a PDF.", String(describing: url.lastPathComponent))
+        case .locked(let url): LF("“%@” is password-protected.", String(describing: url.lastPathComponent))
+        case .unwritable(let url): LF("“%@” couldn’t be saved.", String(describing: url.lastPathComponent))
+        case .nothingToSave: L("There are no pages to save.")
         case .notSmaller(let count):
             count == 1
-                ? "Already as small as it gets — nothing saved."
-                : "These \(count) PDFs are already as small as they get — nothing saved."
+                ? L("Already as small as it gets — nothing saved.")
+                : LF("These %@ PDFs are already as small as they get — nothing saved.", String(describing: count))
         }
     }
 }
@@ -42,17 +42,17 @@ enum PDFCompressionLevel: CaseIterable, Hashable, Sendable {
 
     var title: String {
         switch self {
-        case .light: "Light"
-        case .balanced: "Balanced"
-        case .strong: "Strong"
+        case .light: L("Light")
+        case .balanced: L("Balanced")
+        case .strong: L("Strong")
         }
     }
 
     var summary: String {
         switch self {
-        case .light: "Re-encodes images at high quality. Best for print."
-        case .balanced: "Scales images to screen resolution. Good for sharing."
-        case .strong: "Smallest file; images get noticeably softer."
+        case .light: L("Re-encodes images at high quality. Best for print.")
+        case .balanced: L("Scales images to screen resolution. Good for sharing.")
+        case .strong: L("Smallest file; images get noticeably softer.")
         }
     }
 
@@ -181,7 +181,7 @@ enum PDFTools {
     /// Saves each PDF's edited pages; PDFs never opened (nil) or with every
     /// page where it was are left alone and counted.
     static func saveEditedPages(_ jobs: [(url: URL, pages: [PDFPageEdit]?)]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "edited")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("edited"))
         for (url, pages) in jobs {
             try Task.checkCancellation()
             guard let pages, !keepsDocument(pages, pageCount: try open(url).pageCount) else {
@@ -215,7 +215,7 @@ enum PDFTools {
     /// Returns a message describing the first problem instead when the text is invalid.
     static func ranges(_ text: String, pageCount: Int) -> Result<[[Int]], RangeError> {
         let parts = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-        guard !parts.isEmpty else { return .failure(RangeError(message: "Enter page ranges, like 1-3, 4, 5-\(max(pageCount, 5)).")) }
+        guard !parts.isEmpty else { return .failure(RangeError(message: LF("Enter page ranges, like 1-3, 4, 5-%@.", String(describing: max(pageCount, 5))))) }
         var groups: [[Int]] = []
         for part in parts {
             let bounds = part.split(separator: "-", omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespaces) }
@@ -232,9 +232,9 @@ enum PDFTools {
                 start = nil
                 end = nil
             }
-            guard let start, let end else { return .failure(RangeError(message: "“\(part)” isn’t a page or range.")) }
+            guard let start, let end else { return .failure(RangeError(message: LF("“%@” isn’t a page or range.", String(describing: part)))) }
             guard start >= 1, end <= pageCount else { return .failure(RangeError(message: "“\(part)” is outside pages 1–\(pageCount).")) }
-            guard start <= end else { return .failure(RangeError(message: "“\(part)” runs backwards.")) }
+            guard start <= end else { return .failure(RangeError(message: LF("“%@” runs backwards.", String(describing: part)))) }
             groups.append(Array((start - 1)...(end - 1)))
         }
         return .success(groups)
@@ -256,7 +256,7 @@ enum PDFTools {
                 }
             }
             guard let first = group.first, let last = group.last else { throw PDFToolError.nothingToSave }
-            let suffix = first == last ? "Page \(first + 1)" : "Pages \(first + 1)-\(last + 1)"
+            let suffix = first == last ? LF("Page %@", String(describing: first + 1)) : LF("Pages %@-%@", String(describing: first + 1), String(describing: last + 1))
             let destination = OutputNaming.destination(for: url, suffix: suffix, pathExtension: "pdf")
             try write(output, to: destination)
             return destination
@@ -266,7 +266,7 @@ enum PDFTools {
     /// Splits each PDF into its groups; PDFs the groups wouldn't split (no
     /// pages, or every page in one file) are left alone and counted.
     static func split(_ jobs: [(url: URL, groups: [[Int]])]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], unchangedLabel: "not split")
+        var outcome = SaveOutcome(saved: [], unchangedLabel: L("not split"))
         for (url, groups) in jobs {
             guard !groups.isEmpty, splits(groups, pageCount: try open(url).pageCount) else {
                 outcome.unchanged += 1
@@ -332,7 +332,7 @@ enum PDFTools {
 
     /// Compresses each PDF; files that wouldn't get smaller are left alone and counted.
     static func compress(_ urls: [URL], level: PDFCompressionLevel) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "compressed", unchangedLabel: "can’t get smaller")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("compressed"), unchangedLabel: L("can’t get smaller"))
         for url in urls {
             if let destination = try compress(url, level: level) {
                 outcome.saved.append(destination)
@@ -416,7 +416,7 @@ enum PDFTools {
     /// Writes clean copies of the PDFs that have document info; the rest are
     /// left alone and counted, since a copy would be identical.
     static func removeMetadata(_ urls: [URL]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "cleaned", unchangedLabel: "already clean")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("cleaned"), unchangedLabel: L("already clean"))
         for url in urls {
             // An unreadable file goes through, so its error is reported.
             guard info(for: url)?.hasMetadata ?? true else {

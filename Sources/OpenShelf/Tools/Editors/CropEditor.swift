@@ -56,7 +56,7 @@ struct CropEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: isBatch ? "Crop Images" : "Crop Image",
+            title: isBatch ? L("Crop Images") : L("Crop Image"),
             primaryTitle: primaryTitle,
             // Cropping to the whole image would only save a copy of it.
             isPrimaryEnabled: !isWorking && editedCount > 0,
@@ -85,7 +85,7 @@ struct CropEditor: View {
                     }
                 }
 
-                EditorRow(label: "Aspect ratio") {
+                EditorRow(label: L("Aspect ratio")) {
                     Picker("Aspect ratio", selection: $ratio) {
                         ForEach(CropRatio.allCases) { Text($0.title).tag($0) }
                     }
@@ -94,7 +94,7 @@ struct CropEditor: View {
                     .onChange(of: ratio) { _, newRatio in snap(to: newRatio) }
                 }
 
-                EditorRow(label: "Size") {
+                EditorRow(label: L("Size")) {
                     HStack(spacing: 6) {
                         Text("W").foregroundStyle(.secondary)
                         TextField("Width", value: dimensionBinding(\.width), format: .number.grouping(.never))
@@ -113,11 +113,11 @@ struct CropEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Apply" }
+        guard isBatch else { return L("Apply") }
         switch editedCount {
-        case 0: return "Crop Images"
-        case 1: return "Crop 1 Image"
-        default: return "Crop \(editedCount) Images"
+        case 0: return L("Crop Images")
+        case 1: return L("Crop 1 Image")
+        default: return LF("Crop %@ Images", String(describing: editedCount))
         }
     }
 
@@ -244,7 +244,7 @@ enum ImageCropper {
     /// Crops and saves each image; images whose crop is the whole image are
     /// left alone and counted.
     static func run(_ jobs: [(EditableImage, CGRect)]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "cropped", unchangedLabel: "not cropped")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("cropped"), unchangedLabel: L("not cropped"))
         for (image, crop) in jobs {
             guard crop != CGRect(origin: .zero, size: image.pixelSize) else {
                 outcome.unchanged += 1
@@ -263,7 +263,7 @@ enum CropRatio: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .free: "Free"
+        case .free: L("Free")
         case .square: "1:1"
         case .landscape: "16:9"
         case .tall: "9:16"

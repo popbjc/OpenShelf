@@ -32,7 +32,7 @@ enum OfficeConversion {
         }
 
         guard let pathExtension = format.fileExtension, let filter = filter(for: format) else {
-            throw ConversionError.unsupported("\(source.pathExtension.uppercased()) to \(format.title)")
+            throw ConversionError.unsupported(LF("%@ to %@", String(describing: source.pathExtension.uppercased()), String(describing: format.title)))
         }
         let converted = try await run(soffice, source: source, filter: filter, extension: pathExtension, workspace: workspace, output: output)
         let destination = OutputNaming.destination(for: source, pathExtension: pathExtension)
@@ -76,7 +76,7 @@ enum OfficeConversion {
             group.addTask { try await ProcessRunner.run(soffice, arguments) }
             group.addTask {
                 try await Task.sleep(for: timeout)
-                throw ConversionError.failed("LibreOffice took too long to convert “\(source.lastPathComponent)”.")
+                throw ConversionError.failed(LF("LibreOffice took too long to convert “%@”.", String(describing: source.lastPathComponent)))
             }
             // Whichever finishes first wins; the other is cancelled (which stops LibreOffice).
             defer { group.cancelAll() }
@@ -89,6 +89,6 @@ enum OfficeConversion {
         if let produced = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil).first {
             return produced
         }
-        throw ConversionError.failed("LibreOffice couldn’t convert “\(source.lastPathComponent)”.")
+        throw ConversionError.failed(LF("LibreOffice couldn’t convert “%@”.", String(describing: source.lastPathComponent)))
     }
 }

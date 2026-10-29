@@ -43,7 +43,7 @@ final class TourWindowController: NSWindowController, NSWindowDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "OpenShelf Tour"
+        window.title = L("OpenShelf Tour")
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isReleasedWhenClosed = false

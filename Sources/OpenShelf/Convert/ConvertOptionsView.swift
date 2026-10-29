@@ -49,8 +49,8 @@ struct ConvertOptionsView: View {
 
     var body: some View {
         EditorChrome(
-            title: "Convert to \(model.format.title)",
-            primaryTitle: "Convert",
+            title: LF("Convert to %@", String(describing: model.format.title)),
+            primaryTitle: L("Convert"),
             actions: actions,
             onReset: { model.reset() },
             onPrimary: { model.convert(actions: actions, near: location) }
@@ -69,7 +69,7 @@ struct ConvertOptionsView: View {
                         VideoOutputControls(video: $model.settings.video, showsCodec: options.videoCodec)
                     }
                     if options.audioBitRate {
-                        AudioBitRatePicker(kbps: $model.settings.audio.kbps, title: options.video ? "Audio" : "Bitrate")
+                        AudioBitRatePicker(kbps: $model.settings.audio.kbps, title: options.video ? L("Audio") : L("Bitrate"))
                     }
                     if options.imageQuality {
                         ImageQualityPicker(quality: $model.settings.image.quality)
@@ -123,7 +123,7 @@ final class ConvertOptionsModel {
     }
 
     var subject: String {
-        urls.count == 1 ? urls[0].lastPathComponent : "\(urls.count) files"
+        urls.count == 1 ? urls[0].lastPathComponent : LF("%@ files", String(describing: urls.count))
     }
 
     /// The estimated total output for video, summed over every file; nil
@@ -138,7 +138,7 @@ final class ConvertOptionsModel {
     /// there's no estimate to give.
     var estimateText: String? {
         guard options.video, !cannotEstimate else { return nil }
-        guard sources != nil else { return "Estimating…" }
+        guard sources != nil else { return L("Estimating…") }
         guard let estimate else { return nil }
         let size = MediaSize.format(estimate)
         return urls.count == 1 ? "About \(size)" : "About \(size) for \(urls.count) videos"

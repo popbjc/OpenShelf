@@ -34,32 +34,32 @@ enum TourStep: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .welcome: "Welcome"
-        case .convert: "Convert a photo"
-        case .markdown: "Markdown to PDF"
-        case .tools: "Edit with Tools"
-        case .pdf: "Work with PDFs"
-        case .video: "Trim a video"
-        case .shelf: "Keep files on a shelf"
-        case .keyboard: "No drag needed"
-        case .options: "Choose the settings"
-        case .finish: "You’re set"
+        case .welcome: L("Welcome")
+        case .convert: L("Convert a photo")
+        case .markdown: L("Markdown to PDF")
+        case .tools: L("Edit with Tools")
+        case .pdf: L("Work with PDFs")
+        case .video: L("Trim a video")
+        case .shelf: L("Keep files on a shelf")
+        case .keyboard: L("No drag needed")
+        case .options: L("Choose the settings")
+        case .finish: L("You’re set")
         }
     }
 
     /// One line on why this matters, under the title.
     var summary: String {
         switch self {
-        case .welcome: "Learn OpenShelf by doing it, with files made for practice."
-        case .convert: "Any file becomes the format you need, saved right next to it."
-        case .markdown: "Notes become a typeset document: headings, lists, tables and code."
-        case .tools: "Crop, annotate, redact, resize and more, without opening an editor app."
-        case .pdf: "Split, reorder, combine, compress and read text from PDFs."
-        case .video: "Trim, crop, rotate, mute or turn clips into GIFs."
-        case .shelf: "A shelf holds files while you gather them, then drags them anywhere."
-        case .keyboard: "Select files in Finder or on a shelf and open a wheel with a shortcut."
-        case .options: "Hold ⌥ as you drop to pick the quality, size or codec for one conversion."
-        case .finish: "That’s everything you need. The rest is in Settings."
+        case .welcome: L("Learn OpenShelf by doing it, with files made for practice.")
+        case .convert: L("Any file becomes the format you need, saved right next to it.")
+        case .markdown: L("Notes become a typeset document: headings, lists, tables and code.")
+        case .tools: L("Crop, annotate, redact, resize and more, without opening an editor app.")
+        case .pdf: L("Split, reorder, combine, compress and read text from PDFs.")
+        case .video: L("Trim, crop, rotate, mute or turn clips into GIFs.")
+        case .shelf: L("A shelf holds files while you gather them, then drags them anywhere.")
+        case .keyboard: L("Select files in Finder or on a shelf and open a wheel with a shortcut.")
+        case .options: L("Hold ⌥ as you drop to pick the quality, size or codec for one conversion.")
+        case .finish: L("That’s everything you need. The rest is in Settings.")
         }
     }
 
@@ -106,11 +106,11 @@ enum TourStep: String, CaseIterable, Identifiable {
         switch self {
         case .convert: "PNG"
         case .markdown: "PDF"
-        case .tools: "Crop"
-        case .pdf: "Pages or Split"
-        case .video: "Trim"
-        case .shelf: "Shelf"
-        case .options: "MP4 or GIF"
+        case .tools: L("Crop")
+        case .pdf: L("Pages or Split")
+        case .video: L("Trim")
+        case .shelf: L("Shelf")
+        case .options: L("MP4 or GIF")
         case .welcome, .keyboard, .finish: ""
         }
     }

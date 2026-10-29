@@ -24,7 +24,7 @@ enum ExtraTool: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .ffmpeg: "MP3, OGG, WebP, MKV, WebM, AVI and WMV"
         case .libreOffice: "PowerPoint, Keynote, Pages, Numbers, ODP, XLS and ODS"
-        case .pandoc: "Pandoc’s Markdown, Word and EPUB conversions"
+        case .pandoc: L("Pandoc’s Markdown, Word and EPUB conversions")
         }
     }
 
@@ -40,9 +40,9 @@ enum ExtraTool: String, CaseIterable, Identifiable, Sendable {
     /// The second line of the toast after an install.
     var installedConfirmation: String {
         switch self {
-        case .ffmpeg: "MP3, WebP, MKV… are now on the wheel"
-        case .libreOffice: "PowerPoint, XLS… are now on the wheel"
-        case .pandoc: "Markdown and Word convert with Pandoc"
+        case .ffmpeg: L("MP3, WebP, MKV… are now on the wheel")
+        case .libreOffice: L("PowerPoint, XLS… are now on the wheel")
+        case .pandoc: L("Markdown and Word convert with Pandoc")
         }
     }
 
@@ -77,7 +77,7 @@ enum ExtraTool: String, CaseIterable, Identifiable, Sendable {
 /// Pure decisions, so they can be tested without a drag.
 enum MissingToolAdvice {
     /// The second line of every "needs …" message.
-    static let installHint = "Install it in Settings → Extra Formats"
+    static let installHint = L("Install it in Settings → Extra Formats")
 
     /// The tool whose absence leaves these files with nothing but ZIP on the
     /// Convert wheel, when installing it would offer real conversions. Nil
@@ -97,16 +97,16 @@ enum MissingToolAdvice {
     static func toast(for urls: [URL], needing tool: ExtraTool, tools: ExternalTools) -> Toast {
         let blocked = urls.filter { ConversionCatalog.formats(for: [$0], tools: tools) == [.zip] }
         let names = uniqueNames(of: blocked.isEmpty ? urls : blocked)
-        var title = "These files need \(tool.name)"
+        var title = LF("These files need %@", String(describing: tool.name))
         if !names.contains("") {
             if names.count == 1 {
-                title = "\(names[0]) needs \(tool.name)"
+                title = LF("%@ needs %@", String(describing: names[0]), String(describing: tool.name))
             } else if names.count == 2 {
-                title = "\(names[0]) and \(names[1]) need \(tool.name)"
+                title = LF("%@ and %@ need %@", String(describing: names[0]), String(describing: names[1]), String(describing: tool.name))
             }
         }
         if title.count > 28 {
-            title = "These files need \(tool.name)"
+            title = LF("These files need %@", String(describing: tool.name))
         }
         return Toast(systemImage: "puzzlepiece.extension", title: title, subtitle: installHint)
     }
@@ -116,7 +116,7 @@ enum MissingToolAdvice {
     /// files that only convert from their preview without LibreOffice.
     static func moreFormatsHint(for urls: [URL], tools: ExternalTools) -> String? {
         guard !urls.isEmpty else { return nil }
-        let hint = "More formats in Settings → Extra Formats"
+        let hint = L("More formats in Settings → Extra Formats")
         if tools.ffmpeg == nil, urls.allSatisfy({ url in
             let kind = FileKind(url: url)
             return (kind == .audio || kind == .video) && MediaFormats.isAVFoundationReadable(url)

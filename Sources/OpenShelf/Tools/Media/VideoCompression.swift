@@ -10,7 +10,7 @@ enum VideoResolution: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .original: "Original"
+        case .original: L("Original")
         case .p1080: "1080p"
         case .p720: "720p"
         case .p480: "480p"
@@ -36,9 +36,9 @@ enum VideoQuality: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .high: "High"
-        case .medium: "Medium"
-        case .low: "Low"
+        case .high: L("High")
+        case .medium: L("Medium")
+        case .low: L("Low")
         }
     }
 
@@ -402,7 +402,7 @@ extension MediaTools {
         progress: @escaping @Sendable (Double) -> Void
     ) async throws {
         let name = fileType == .mov ? "MOV" : "MP4"
-        let failure = EncodeFailure(detail: "as \(name)", message: "Converting to \(name) failed.")
+        let failure = EncodeFailure(detail: LF("as %@", String(describing: name)), message: LF("Converting to %@ failed.", String(describing: name)))
         let partial = partialURL(for: destination)
         do {
             try await transcode(url, source: source, plan: plan, fileType: fileType, to: partial, failure: failure, progress: progress)
@@ -427,7 +427,7 @@ extension MediaTools {
         let asset = AVURLAsset(url: url)
         let duration = try await asset.load(.duration).seconds
         let tracks = try await asset.loadTracks(withMediaType: .audio)
-        guard !tracks.isEmpty else { throw ConversionError.failed("“\(url.lastPathComponent)” has no audio track.") }
+        guard !tracks.isEmpty else { throw ConversionError.failed(LF("“%@” has no audio track.", String(describing: url.lastPathComponent))) }
 
         let partial = partialURL(for: destination)
         do {
@@ -459,7 +459,7 @@ extension MediaTools {
     /// when it can't start, `message` when it fails partway.
     private struct EncodeFailure {
         var detail = "smaller"
-        var message = "Compressing failed."
+        var message = L("Compressing failed.")
     }
 
     private static func transcode(

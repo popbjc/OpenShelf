@@ -35,7 +35,7 @@ struct PDFMetadataEditor: View {
     var body: some View {
         EditorChrome(
             title: "PDF Metadata",
-            primaryTitle: isWorking ? "Saving…" : (isSingle ? "Save" : "Remove Metadata"),
+            primaryTitle: isWorking ? L("Saving…") : (isSingle ? L("Save") : "Remove Metadata"),
             isPrimaryEnabled: canSave,
             actions: actions,
             onReset: isSingle ? { fields = originalFields } : nil,
@@ -60,7 +60,7 @@ struct PDFMetadataEditor: View {
 
     private var headerDetail: String {
         if isSingle, let info = singleInfo {
-            let pages = info.pageCount == 1 ? "1 page" : "\(info.pageCount) pages"
+            let pages = info.pageCount == 1 ? L("1 page") : LF("%@ pages", String(describing: info.pageCount))
             return "\(pages) · \(PDFTools.formatted(info.fileSize))"
         }
         let withMetadata = infos.compactMap { $0 }.filter(\.hasMetadata).count
@@ -104,7 +104,7 @@ struct PDFMetadataEditor: View {
                             .truncationMode(.middle)
                         Spacer()
                         if let info = infos[index] {
-                            Text(info.isLocked ? "Locked" : info.hasMetadata ? "Has document info" : "Clean")
+                            Text(info.isLocked ? L("Locked") : info.hasMetadata ? L("Has document info") : L("Clean"))
                                 .font(.system(size: 11))
                                 .foregroundStyle(info.isLocked ? Color.orange : .secondary)
                         } else {

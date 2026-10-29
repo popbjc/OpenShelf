@@ -33,7 +33,7 @@ struct MediaTrimEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Trim",
+            title: L("Trim"),
             primaryTitle: primaryTitle,
             isPrimaryEnabled: isBatch
                 ? batch.progress == nil && editedCount > 0
@@ -80,14 +80,14 @@ struct MediaTrimEditor: View {
                             .frame(width: 18)
                     }
                     .help("Play the selection (Space)")
-                    .accessibilityLabel(model.isPlaying ? "Pause" : "Play selection")
+                    .accessibilityLabel(model.isPlaying ? L("Pause") : L("Play selection"))
                     .keyboardShortcut(.space, modifiers: [])
                     .disabled(!model.isReady || !model.isPlayable)
 
                     Text("Start").foregroundStyle(.secondary)
-                    TimeField(label: "Start time", seconds: model.startBinding)
-                    Text("End").foregroundStyle(.secondary)
-                    TimeField(label: "End time", seconds: model.endBinding)
+                    TimeField(label: L("Start time"), seconds: model.startBinding)
+                    Text(L("End")).foregroundStyle(.secondary)
+                    TimeField(label: L("End time"), seconds: model.endBinding)
                     Spacer(minLength: 0)
                     if model.isCutAway {
                         Text("Shorter than these cuts")
@@ -140,7 +140,7 @@ struct MediaTrimEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Save" }
+        guard isBatch else { return L("Save") }
         switch editedCount {
         case 0: return "Trim Files"
         case 1: return "Trim 1 File"
@@ -187,7 +187,7 @@ struct MediaTrimEditor: View {
         }
         models.forEach { $0.player.pause() }
         let jobs = models.filter(\.isEdited).map { ($0.url, $0.start, $0.end) }
-        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: "trimmed", unchangedLabel: "not trimmed")
+        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: L("trimmed"), unchangedLabel: L("not trimmed"))
         batch.start(jobs.count, outcome: outcome, actions: actions) { index, progress in
             let (url, start, end) = jobs[index]
             let range = CMTimeRange(start: MediaTime.cmTime(start), end: MediaTime.cmTime(end))
@@ -543,7 +543,7 @@ private struct TrimRangeControl: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Trim range")
-        .accessibilityValue("From \(MediaTime.format(model.start)) to \(MediaTime.format(model.end))")
+        .accessibilityValue(LF("From %@ to %@", String(describing: MediaTime.format(model.start)), String(describing: MediaTime.format(model.end))))
     }
 
     @ViewBuilder
@@ -588,7 +588,7 @@ private struct TrimRangeControl: View {
         }
         .frame(width: handleWidth)
         .contentShape(Rectangle().inset(by: -8))
-        .accessibilityLabel(isStart ? "Start handle" : "End handle")
+        .accessibilityLabel(isStart ? "Start handle" : L("End handle"))
     }
 
     private func dragGesture(isStart: Bool, scale: CGFloat) -> some Gesture {

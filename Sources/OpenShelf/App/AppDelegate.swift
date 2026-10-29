@@ -48,7 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.wheel.step(direction)
         }
         dragMonitor.onArrowsBlocked = { [weak self] in
-            self?.wheel.showHint("Let go of ⌃ or ⌘, then use the arrow keys")
+            self?.wheel.showHint(L("Let go of ⌃ or ⌘, then use the arrow keys"))
         }
         dragMonitor.onConfirm = { [weak self] urls in
             self?.wheel.confirmHighlighted(with: urls) ?? false
@@ -98,7 +98,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if wheel.presentForKeyboard(urls: urls, at: location, sourceShelfID: sourceShelf?.id) {
             TourProgress.shared.record(.keyboardWheelOpened(urls))
         } else {
-            ToastController.shared.show(Toast(systemImage: "nosign", title: "Nothing to do with these files"), near: location)
+            ToastController.shared.show(Toast(systemImage: "nosign", title: L("Nothing to do with these files")), near: location)
         }
     }
 
@@ -118,7 +118,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if wheel.presentForKeyboard(urls: urls, at: location) {
                 TourProgress.shared.record(.keyboardWheelOpened(urls))
             } else {
-                ToastController.shared.show(Toast(systemImage: "nosign", title: "Nothing to do with these files"), near: location)
+                ToastController.shared.show(Toast(systemImage: "nosign", title: L("Nothing to do with these files")), near: location)
             }
             return
         }
@@ -155,7 +155,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 )
                 return
             }
-            let title = kind == .convert ? "No conversions for this file" : "No tools for this file yet"
+            let title = kind == .convert ? L("No conversions for this file") : L("No tools for this file yet")
             ToastController.shared.show(Toast(systemImage: "nosign", title: title), near: location)
             return
         }
@@ -202,26 +202,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func perform(_ action: FileAction, on urls: [URL]) {
         let toasts = ToastController.shared
-        let count = urls.count == 1 ? "“\(urls[0].lastPathComponent)”" : "\(urls.count) files"
+        let count = urls.count == 1 ? "“\(urls[0].lastPathComponent)”" : LF("%@ files", String(describing: urls.count))
         switch action {
         case .newShelf:
             shelves.newShelf(with: urls)
         case .addToShelf:
             shelves.addToRecentShelf(urls)
-            toasts.show(Toast(systemImage: "tray.full", title: "Added to shelf", subtitle: count))
+            toasts.show(Toast(systemImage: "tray.full", title: L("Added to shelf"), subtitle: count))
         case .airDrop:
             FileActions.airDrop(urls)
         case .copy:
             FileActions.copyFiles(urls)
-            toasts.show(Toast(systemImage: "doc.on.doc", title: "Copied \(count)", subtitle: "Paste in Finder to make a copy"))
+            toasts.show(Toast(systemImage: "doc.on.doc", title: "Copied \(count)", subtitle: L("Paste in Finder to make a copy")))
         case .move:
             guard let result = FileActions.moveWithPrompt(urls), result.movedCount > 0 else { return }
             shelves.relocate(result.moves)
-            let moved = result.movedCount == 1 ? "1 file" : "\(result.movedCount) files"
+            let moved = result.movedCount == 1 ? L("1 file") : LF("%@ files", String(describing: result.movedCount))
             toasts.show(Toast(systemImage: "folder", title: "Moved \(moved)", subtitle: "to \(result.destination.lastPathComponent)"))
         case .copyPath:
             FileActions.copyPaths(urls)
-            toasts.show(Toast(systemImage: "link", title: urls.count == 1 ? "Copied path" : "Copied \(urls.count) paths", subtitle: urls.count == 1 ? urls[0].path : nil))
+            toasts.show(Toast(systemImage: "link", title: urls.count == 1 ? L("Copied path") : LF("Copied %@ paths", String(describing: urls.count)), subtitle: urls.count == 1 ? urls[0].path : nil))
         case .terminal:
             FileActions.openInTerminal(urls)
         }

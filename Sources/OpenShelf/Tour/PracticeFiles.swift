@@ -26,11 +26,11 @@ enum PracticeFile: String, CaseIterable, Identifiable, Sendable {
     /// What it is, under its name in the tray.
     var caption: String {
         switch self {
-        case .photo: "Photo"
+        case .photo: L("Photo")
         case .notes: "Markdown"
-        case .report: "3-page PDF"
-        case .clip: "4-second video"
-        case .letter: "Plain text"
+        case .report: L("3-page PDF")
+        case .clip: L("4-second video")
+        case .letter: L("Plain text")
         }
     }
 }
@@ -41,7 +41,7 @@ enum PracticeFile: String, CaseIterable, Identifiable, Sendable {
 enum PracticeFiles {
     /// ~/Library/Application Support/OpenShelf/Practice.
     static var folder: URL {
-        ManagedTools.directory.deletingLastPathComponent().appendingPathComponent("Practice", isDirectory: true)
+        ManagedTools.directory.deletingLastPathComponent().appendingPathComponent(L("Practice"), isDirectory: true)
     }
 
     static func url(of file: PracticeFile, in folder: URL = folder) -> URL {
@@ -171,8 +171,8 @@ enum PracticeFiles {
         }
         let pages: [(title: String, body: String, color: (CGFloat, CGFloat, CGFloat))] = [
             ("Field Report", "Notes from three days at Mountain Lake: the weather, the trail and what we saw. Try splitting this PDF into pages, or moving page 3 to the front.", (0.29, 0.44, 0.86)),
-            ("The Trail", "Eleven kilometres around the lake, with one steep climb to the ridge. The view from the top is the photo in this folder.", (0.18, 0.62, 0.47)),
-            ("The Weather", "Clear mornings, wind after noon, and a sunset every evening worth staying up for. The clip in this folder is one of them.", (0.86, 0.45, 0.33)),
+            (L("The Trail"), L("Eleven kilometres around the lake, with one steep climb to the ridge. The view from the top is the photo in this folder."), (0.18, 0.62, 0.47)),
+            (L("The Weather"), L("Clear mornings, wind after noon, and a sunset every evening worth staying up for. The clip in this folder is one of them."), (0.86, 0.45, 0.33)),
         ]
         for (index, page) in pages.enumerated() {
             context.beginPDFPage(nil)

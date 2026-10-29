@@ -11,7 +11,7 @@ enum ImageConversion {
         settings: OutputSettings.Image = OutputSettings.Image()
     ) async throws -> URL {
         guard let pathExtension = format.fileExtension else {
-            throw ConversionError.unsupported("image to \(format.title)")
+            throw ConversionError.unsupported(LF("image to %@", String(describing: format.title)))
         }
         let image = try EditableImage.load(source)
         let destination = OutputNaming.destination(for: source, pathExtension: pathExtension)
@@ -25,7 +25,7 @@ enum ImageConversion {
             try await writeWebP(image, to: destination, quality: settings.webPQuality, tools: tools)
         default:
             guard let type = format.imageIOType else {
-                throw ConversionError.unsupported("image to \(format.title)")
+                throw ConversionError.unsupported(LF("image to %@", String(describing: format.title)))
             }
             // PNG, TIFF, BMP and GIF ignore the quality.
             let metadata = settings.keepsMetadata ? image.properties : nil
@@ -93,7 +93,7 @@ enum WebPEncoder: Equatable {
         if let cwebp { return .cwebp(cwebp) }
         guard let ffmpeg else { throw MissingToolError(name: "ffmpeg") }
         guard ffmpegEncoders.contains(ffmpegEncoder) else {
-            throw ConversionError.failed("This ffmpeg can’t write WebP. Install cwebp, or ffmpeg with libwebp.")
+            throw ConversionError.failed(L("This ffmpeg can’t write WebP. Install cwebp, or ffmpeg with libwebp."))
         }
         return .ffmpeg(ffmpeg)
     }

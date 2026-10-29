@@ -15,8 +15,8 @@ struct VideoCompressEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Compress Video",
-            primaryTitle: model.exportProgress == nil ? "Compress" : "Compressing…",
+            title: L("Compress Video"),
+            primaryTitle: model.exportProgress == nil ? L("Compress") : L("Compressing…"),
             isPrimaryEnabled: model.canCompress,
             actions: actions,
             onReset: model.reset,
@@ -40,7 +40,7 @@ struct VideoCompressEditor: View {
                     }
                 }
 
-                EditorRow(label: "Resolution") {
+                EditorRow(label: L("Resolution")) {
                     Picker("Resolution", selection: $model.resolution) {
                         ForEach(VideoResolution.allCases) { Text($0.title).tag($0) }
                     }
@@ -48,7 +48,7 @@ struct VideoCompressEditor: View {
                     .labelsHidden()
                 }
 
-                EditorRow(label: "Quality") {
+                EditorRow(label: L("Quality")) {
                     Picker("Quality", selection: $model.quality) {
                         ForEach(VideoQuality.allCases) { Text($0.title).tag($0) }
                     }
@@ -82,13 +82,13 @@ struct VideoCompressEditor: View {
             Image(systemName: "arrow.down.right.and.arrow.up.left")
                 .foregroundStyle(Color.accentColor)
             if let estimate = model.estimate {
-                Text(model.urls.count == 1 ? "≈ \(MediaSize.format(estimate))" : "≈ \(MediaSize.format(estimate)) for \(model.urls.count) videos")
+                Text(model.urls.count == 1 ? LF("≈ %@", String(describing: MediaSize.format(estimate))) : LF("≈ %@ for %@ videos", String(describing: MediaSize.format(estimate)), String(describing: model.urls.count)))
                     .font(.system(size: 13, weight: .semibold).monospacedDigit())
-                + Text(model.isSmaller ? "  (\(model.savingPercent(estimate))% smaller)" : "  (no smaller)")
+                + Text(model.isSmaller ? LF("  (%@% smaller)", String(describing: model.savingPercent(estimate))) : L("  (no smaller)"))
                     .font(.system(size: 12))
                     .foregroundStyle(model.isSmaller ? Color.secondary : Color.orange)
             } else {
-                Text(model.loadError ?? "Estimating…")
+                Text(model.loadError ?? L("Estimating…"))
                     .font(.system(size: 12))
                     .foregroundStyle(model.loadError == nil ? Color.secondary : Color.orange)
             }
@@ -124,11 +124,11 @@ final class VideoCompressModel {
     }
 
     var title: String {
-        urls.count == 1 ? urls[0].lastPathComponent : "\(urls.count) videos"
+        urls.count == 1 ? urls[0].lastPathComponent : LF("%@ videos", String(describing: urls.count))
     }
 
     var originalSummary: String {
-        guard urls.count == 1, let size = sources?.first?.displaySize else { return "Original \(MediaSize.format(originalSize))" }
+        guard urls.count == 1, let size = sources?.first?.displaySize else { return LF("Original %@", String(describing: MediaSize.format(originalSize))) }
         return "\(Int(size.width)) × \(Int(size.height)) · \(MediaSize.format(originalSize))"
     }
 
@@ -170,7 +170,7 @@ final class VideoCompressModel {
             do {
                 loaded.append(try await VideoSourceInfo.load(url))
             } catch {
-                let text = urls.count == 1 ? "This video can’t be read." : "“\(url.lastPathComponent)” can’t be read."
+                let text = urls.count == 1 ? L("This video can’t be read.") : LF("“%@” can’t be read.", String(describing: url.lastPathComponent))
                 loadError = MediaLoading.loadError(error, otherwise: text)
                 return
             }
@@ -197,7 +197,7 @@ final class VideoCompressModel {
             var outcomes: [URL?] = []
             do {
                 for (index, url) in urls.enumerated() {
-                    self?.progressDetail = urls.count > 1 ? "Compressing \(index + 1) of \(urls.count)…" : nil
+                    self?.progressDetail = urls.count > 1 ? LF("Compressing %@ of %@…", String(describing: index + 1), String(describing: urls.count)) : nil
                     let output = try await MediaTools.compress(url, resolution: resolution, quality: quality) { fraction in
                         Task { @MainActor in
                             // Late reports mustn't bring back a finished progress bar.
@@ -228,7 +228,7 @@ final class VideoCompressModel {
                 if skipped > 0 {
                     ToastController.shared.show(Toast(
                         systemImage: "checkmark",
-                        title: "Saved \(saved.count) of \(outcomes.count)",
+                        title: LF("Saved %@ of %@", String(describing: saved.count), String(describing: outcomes.count)),
                         subtitle: "\(skipped) already as small as \(skipped == 1 ? "it gets" : "they get") — not saved"
                     ))
                 }
@@ -253,11 +253,11 @@ extension VideoCompressionPlan {
     static func advice(for sources: [VideoSourceInfo], originalSize: Int64) -> String {
         for resolution in VideoResolution.allCases {
             for quality in VideoQuality.allCases where estimatedBytes(for: sources, resolution: resolution, quality: quality) < originalSize {
-                return "Wouldn’t get smaller at these settings. Try a lower resolution or quality."
+                return L("Wouldn’t get smaller at these settings. Try a lower resolution or quality.")
             }
         }
         return sources.count == 1
-            ? "Already as small as it gets."
-            : "These videos are already as small as they get."
+            ? L("Already as small as it gets.")
+            : L("These videos are already as small as they get.")
     }
 }

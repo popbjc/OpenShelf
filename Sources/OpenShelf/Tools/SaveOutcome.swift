@@ -10,9 +10,9 @@ struct SaveOutcome: Equatable {
     /// Files left alone because saving them would change nothing.
     var unchanged = 0
     /// Past tense for a saved file, e.g. "resized".
-    var savedLabel = "saved"
+    var savedLabel = L("saved")
     /// Why a file was left alone, e.g. "already smaller".
-    var unchangedLabel = "unchanged"
+    var unchangedLabel = L("unchanged")
     /// Shown under a plain "Saved 3 files", e.g. "as PNG".
     var detail: String?
 
@@ -20,16 +20,18 @@ struct SaveOutcome: Equatable {
     var savedAnything: Bool { !saved.isEmpty }
 
     var title: String {
-        if saved.isEmpty { return "Nothing saved" }
-        if unchanged > 0 { return "\(saved.count) \(savedLabel) · \(unchanged) \(unchangedLabel)" }
-        return saved.count == 1 ? "Saved" : "Saved \(saved.count) files"
+        if saved.isEmpty { return L("Nothing saved") }
+        if unchanged > 0 {
+            return LF("%@ %@ · %@ %@", String(describing: saved.count), savedLabel, String(describing: unchanged), unchangedLabel)
+        }
+        return saved.count == 1 ? L("Saved") : LF("Saved %@ files", String(describing: saved.count))
     }
 
     var subtitle: String? {
         if saved.isEmpty {
             guard unchanged > 0 else { return nil }
             let reason = unchangedLabel.prefix(1).uppercased() + unchangedLabel.dropFirst()
-            return unchanged == 1 ? reason : "All \(unchanged) \(unchangedLabel)"
+            return unchanged == 1 ? reason : LF("All %@ %@", String(describing: unchanged), unchangedLabel)
         }
         if saved.count == 1 { return saved[0].lastPathComponent }
         return unchanged > 0 ? nil : detail

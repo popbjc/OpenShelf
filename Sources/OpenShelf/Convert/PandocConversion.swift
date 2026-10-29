@@ -95,7 +95,7 @@ enum PandocConversion {
         guard let pathExtension = format.fileExtension,
               let arguments = arguments(source: source, format: format, output: output, pdfEngine: tools.pdfEngine)
         else {
-            throw ConversionError.unsupported("\(source.pathExtension.uppercased()) to \(format.title)")
+            throw ConversionError.unsupported(LF("%@ to %@", String(describing: source.pathExtension.uppercased()), String(describing: format.title)))
         }
         // A typesetter starts its own helpers, which it finds next to itself.
         let engineFolder = format == .pdf ? tools.pdfEngine?.deletingLastPathComponent().path : nil
@@ -107,7 +107,7 @@ enum PandocConversion {
             }
             group.addTask {
                 try await Task.sleep(for: timeout)
-                throw ConversionError.failed("Pandoc took too long to convert “\(source.lastPathComponent)”.")
+                throw ConversionError.failed(LF("Pandoc took too long to convert “%@”.", String(describing: source.lastPathComponent)))
             }
             // Whichever finishes first wins; the other is cancelled (which stops Pandoc).
             defer { group.cancelAll() }
@@ -115,7 +115,7 @@ enum PandocConversion {
         }
 
         guard FileManager.default.fileExists(atPath: output.path) else {
-            throw ConversionError.failed("Pandoc couldn’t convert “\(source.lastPathComponent)”.")
+            throw ConversionError.failed(LF("Pandoc couldn’t convert “%@”.", String(describing: source.lastPathComponent)))
         }
         let destination = OutputNaming.destination(for: source, pathExtension: pathExtension)
         try FileManager.default.moveItem(at: output, to: destination)

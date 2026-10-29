@@ -55,7 +55,7 @@ private struct ExtraToolRow: View {
 
     private var removalMessage: String {
         switch tool {
-        case .libreOffice: "LibreOffice.app goes to the Trash, and the formats it adds leave the wheel."
+        case .libreOffice: L("LibreOffice.app goes to the Trash, and the formats it adds leave the wheel.")
         case .pandoc: "Markdown and Word documents go back to OpenShelf’s own conversions."
         case .ffmpeg: "The formats it adds leave the wheel until it’s installed again."
         }
@@ -115,12 +115,12 @@ private struct InstalledLabel: View {
                 Button("Remove", action: onRemove)
             }
             Label {
-                Text(info.source == .other ? "Installed" : "Installed · \(info.source.rawValue)")
+                Text(info.source == .other ? L("Installed") : LF("Installed · %@", L(info.source.rawValue)))
             } icon: {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
             }
-            .help([tool.name, info.version].compactMap { $0 }.joined(separator: " ") + " at \(info.path.path)")
+            .help([tool.name, info.version].compactMap { $0 }.joined(separator: " ") + LF(" at %@", String(describing: info.path.path)))
         }
     }
 }
@@ -167,7 +167,7 @@ private struct FailureControls: View {
             Button("Install with Homebrew") { installer.installWithHomebrew(tool) }
                 .help("Runs “\(tool.homebrewCommand)” for you.")
         case .copyHomebrewCommand:
-            Button(hasCopiedCommand ? "Copied" : "Copy Homebrew Command") { copyHomebrewCommand() }
+            Button(hasCopiedCommand ? L("Copied") : L("Copy Homebrew Command")) { copyHomebrewCommand() }
                 .buttonStyle(.link)
                 .font(.caption)
                 .help(tool.homebrewCommand)

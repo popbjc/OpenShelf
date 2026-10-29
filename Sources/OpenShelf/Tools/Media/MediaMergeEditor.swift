@@ -16,8 +16,8 @@ struct MediaMergeEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Merge",
-            primaryTitle: "Merge",
+            title: L("Merge"),
+            primaryTitle: L("Merge"),
             isPrimaryEnabled: model.items.count >= 2 && model.exportProgress == nil,
             actions: actions,
             onReset: model.reset,

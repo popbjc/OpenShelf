@@ -12,7 +12,7 @@ struct OutputSettingsPane: View {
             } header: {
                 Text("Video")
             } footer: {
-                footnote("Automatic converts as OpenShelf always has. The codec is for MP4, MOV and MKV; HDR videos stay HEVC to keep their colours.")
+                footnote(L("Automatic converts as OpenShelf always has. The codec is for MP4, MOV and MKV; HDR videos stay HEVC to keep their colours."))
             }
 
             Section {
@@ -20,7 +20,7 @@ struct OutputSettingsPane: View {
             } header: {
                 Text("Audio")
             } footer: {
-                footnote("Applies to MP3, M4A, OGG, Opus and WMA, and the sound in videos.")
+                footnote(L("Applies to MP3, M4A, OGG, Opus and WMA, and the sound in videos."))
             }
 
             Section {
@@ -29,7 +29,7 @@ struct OutputSettingsPane: View {
             } header: {
                 Text("Images")
             } footer: {
-                footnote("Quality applies to JPEG, HEIC, AVIF and WebP.")
+                footnote(L("Quality applies to JPEG, HEIC, AVIF and WebP."))
             }
 
             Section {
@@ -38,7 +38,7 @@ struct OutputSettingsPane: View {
                 Text("GIFs from Videos")
             } footer: {
                 HStack {
-                    footnote("Hold ⌥ on a format to choose just once.")
+                    footnote(L("Hold ⌥ on a format to choose just once."))
                     Spacer()
                     Button("Reset to Automatic") { preferences.output = .automatic }
                         .disabled(preferences.output == .automatic)
@@ -107,7 +107,7 @@ struct MbpsField: View {
 
 struct AudioBitRatePicker: View {
     @Binding var kbps: Int?
-    var title = "Bitrate"
+    var title = L("Bitrate")
 
     var body: some View {
         Picker(title, selection: $kbps) {

@@ -184,7 +184,7 @@ struct AdjustEditor: View {
                 }
                 transformButtons
                 VStack(spacing: 6) {
-                    EditorSlider(label: "Exposure", value: settingsBinding.exposure, range: -100...100, unit: "")
+                    EditorSlider(label: L("Exposure"), value: settingsBinding.exposure, range: -100...100, unit: "")
                     EditorSlider(label: "Brightness", value: settingsBinding.brightness, range: -100...100, unit: "")
                     EditorSlider(label: "Contrast", value: settingsBinding.contrast, range: -100...100, unit: "")
                     EditorSlider(label: "Saturation", value: settingsBinding.saturation, range: -100...100, unit: "")
@@ -201,12 +201,12 @@ struct AdjustEditor: View {
     }
 
     private var primaryTitle: String {
-        if isSaving { return "Saving…" }
-        guard isBatch else { return "Save" }
+        if isSaving { return L("Saving…") }
+        guard isBatch else { return L("Save") }
         switch editedCount {
-        case 0: return "Save Images"
-        case 1: return "Save 1 Image"
-        default: return "Save \(editedCount) Images"
+        case 0: return L("Save Images")
+        case 1: return L("Save 1 Image")
+        default: return LF("Save %@ Images", String(describing: editedCount))
         }
     }
 
@@ -304,7 +304,7 @@ enum ImageAdjuster {
     /// Adjusts and saves each image; images whose settings change nothing are
     /// left alone and counted.
     static func run(_ jobs: [(EditableImage, AdjustSettings)]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "edited", unchangedLabel: "not edited")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("edited"), unchangedLabel: L("not edited"))
         for (image, settings) in jobs {
             guard settings.changesImage else {
                 outcome.unchanged += 1

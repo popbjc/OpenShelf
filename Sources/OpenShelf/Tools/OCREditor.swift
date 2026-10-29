@@ -16,8 +16,8 @@ struct OCREditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Recognise Text",
-            primaryTitle: "Save",
+            title: L("Recognise Text"),
+            primaryTitle: L("Save"),
             isPrimaryEnabled: model.progress == nil,
             actions: actions,
             onPrimary: { model.save(actions: actions) }
@@ -27,7 +27,7 @@ struct OCREditor: View {
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
                     .truncationMode(.middle)
-                EditorRow(label: "Save as") {
+                EditorRow(label: L("Save as")) {
                     Picker("Save as", selection: $model.output) {
                         Text("Searchable PDF").tag(OCR.Output.searchablePDF)
                         Text("Text").tag(OCR.Output.text)
@@ -62,7 +62,7 @@ final class OCRModel {
     }
 
     var title: String {
-        urls.count == 1 ? urls[0].lastPathComponent : "\(urls.count) files"
+        urls.count == 1 ? urls[0].lastPathComponent : LF("%@ files", String(describing: urls.count))
     }
 
     func cancel() {
@@ -79,7 +79,7 @@ final class OCRModel {
             do {
                 for (index, url) in urls.enumerated() {
                     try Task.checkCancellation()
-                    self?.detail = urls.count > 1 ? "Reading \(index + 1) of \(urls.count)…" : nil
+                    self?.detail = urls.count > 1 ? LF("Reading %@ of %@…", String(describing: index + 1), String(describing: urls.count)) : nil
                     saved.append(try await OCR.run(url, output: output) { fraction in
                         Task { @MainActor in self?.progress = (Double(index) + fraction) / Double(urls.count) }
                     })

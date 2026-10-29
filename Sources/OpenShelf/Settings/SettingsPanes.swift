@@ -298,11 +298,11 @@ private struct ShortcutRecorder: View {
     var body: some View {
         VStack(alignment: .trailing, spacing: 4) {
             HStack(spacing: 6) {
-                Button(isRecording ? "Type a shortcut…" : (combo?.displayString ?? "Off")) {
+                Button(isRecording ? L("Type a shortcut…") : (combo?.displayString ?? "Off")) {
                     isRecording ? stopRecording() : startRecording()
                 }
                 .help("Click, then press a key together with ⌃, ⌥ or ⌘. Esc cancels.")
-                .accessibilityLabel(isRecording ? "Recording shortcut" : "Shortcut \(combo?.displayString ?? "off")")
+                .accessibilityLabel(isRecording ? L("Recording shortcut") : LF("Shortcut %@", combo?.displayString ?? L("Off")))
                 if combo != .defaultOpenWheel {
                     Button("Default") { apply(.defaultOpenWheel) }
                 }

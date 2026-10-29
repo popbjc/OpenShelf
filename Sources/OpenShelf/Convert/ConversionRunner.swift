@@ -36,7 +36,7 @@ final class ConversionRunner {
         }
         // Several files go into one archive; everything else converts per file.
         let jobs: [[URL]] = isArchive ? [urls] : urls.map { [$0] }
-        run(title: title, jobs: jobs, savedSubtitle: format == .extract ? nil : "as \(format.title)", near: location, sourceShelfID: sourceShelfID) { sources, progress in
+        run(title: title, jobs: jobs, savedSubtitle: format == .extract ? nil : LF("as %@", String(describing: format.title)), near: location, sourceShelfID: sourceShelfID) { sources, progress in
             switch format {
             case .zip: return [try await ArchiveConversion.zip(sources)]
             case .tar: return [try await ArchiveConversion.tar(sources, gzip: false)]

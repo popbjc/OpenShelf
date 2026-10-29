@@ -33,8 +33,8 @@ enum CompressError: LocalizedError, Equatable {
         switch self {
         case .notSmaller(let count):
             count == 1
-                ? "Already as small as it gets — nothing saved."
-                : "These \(count) files are already as small as they get — nothing saved."
+                ? L("Already as small as it gets — nothing saved.")
+                : LF("These %@ files are already as small as they get — nothing saved.", String(describing: count))
         }
     }
 }
@@ -67,19 +67,19 @@ enum ImageCompressor {
     static func formatNote(for images: [EditableImage], format: CompressOptions.Format) -> String? {
         var notes: [String] = []
         if images.contains(where: \.isAnimated) {
-            notes.append("Animation isn’t kept; only the first frame is saved.")
+            notes.append(L("Animation isn’t kept; only the first frame is saved."))
         }
         let switched = images.filter { image in
             let type = outputType(for: image, format: format)
             return format == .keepOriginal && type != image.type
         }
         if let first = switched.first {
-            let from = first.type.preferredFilenameExtension?.uppercased() ?? "This format"
-            let to = outputType(for: first, format: format) == .heic ? "HEIC (keeps transparency)" : "JPEG"
-            notes.append("\(from) can’t be compressed in place — saves as \(to).")
+            let from = first.type.preferredFilenameExtension?.uppercased() ?? L("This format")
+            let to = outputType(for: first, format: format) == .heic ? L("HEIC (keeps transparency)") : "JPEG"
+            notes.append(LF("%@ can’t be compressed in place — saves as %@.", String(describing: from), String(describing: to)))
         }
         if format == .jpeg, images.contains(where: \.isTransparent) {
-            notes.append("JPEG has no transparency; see-through areas become white.")
+            notes.append(L("JPEG has no transparency; see-through areas become white."))
         }
         return notes.isEmpty ? nil : notes.joined(separator: " ")
     }
@@ -214,7 +214,7 @@ enum ImageCompressor {
     /// Compresses and saves each image; images that wouldn't get smaller are
     /// left alone and counted.
     static func run(_ images: [EditableImage], options: CompressOptions) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "compressed", unchangedLabel: "can’t get smaller")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("compressed"), unchangedLabel: L("can’t get smaller"))
         for image in images {
             if let url = try save(image, options: options) {
                 outcome.saved.append(url)
@@ -259,8 +259,8 @@ struct CompressEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Compress",
-            primaryTitle: isWorking ? "Compressing…" : "Compress",
+            title: L("Compress"),
+            primaryTitle: isWorking ? L("Compressing…") : L("Compress"),
             isPrimaryEnabled: !isWorking && !isKnownNotSmaller,
             actions: actions,
             onReset: { options = CompressOptions() },
@@ -278,12 +278,12 @@ struct CompressEditor: View {
 
                 switch options.mode {
                 case .quality:
-                    EditorSlider(label: "Quality", value: $options.quality, range: 10...100, unit: "%")
+                    EditorSlider(label: L("Quality"), value: $options.quality, range: 10...100, unit: "%")
                 case .targetSize:
-                    EditorSlider(label: "Target size", value: $options.targetPercent, range: 10...90, unit: "%")
+                    EditorSlider(label: L("Target size"), value: $options.targetPercent, range: 10...90, unit: "%")
                 }
 
-                EditorRow(label: "Format") {
+                EditorRow(label: L("Format")) {
                     Picker("Format", selection: $options.format) {
                         Text("Keep").tag(CompressOptions.Format.keepOriginal)
                         Text("JPEG").tag(CompressOptions.Format.jpeg)
@@ -293,7 +293,7 @@ struct CompressEditor: View {
                     .labelsHidden()
                 }
 
-                EditorRow(label: "Max size") {
+                EditorRow(label: L("Max size")) {
                     Picker("Max size", selection: $options.maxDimension) {
                         Text("Original").tag(Int?.none)
                         ForEach([4096, 2048, 1600, 1080], id: \.self) { size in
@@ -341,13 +341,13 @@ struct CompressEditor: View {
                     }
                 }
             VStack(alignment: .leading, spacing: 2) {
-                Text(images.count == 1 ? images[0].url.lastPathComponent : "\(images.count) images")
+                Text(images.count == 1 ? images[0].url.lastPathComponent : LF("%@ images", String(describing: images.count)))
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Text(images.count == 1
                      ? "\(images[0].cgImage.width) × \(images[0].cgImage.height) · \(Self.format(totalOriginalSize))"
-                     : "\(Self.format(totalOriginalSize)) in total")
+                     : LF("%@ in total", String(describing: Self.format(totalOriginalSize))))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
@@ -360,10 +360,10 @@ struct CompressEditor: View {
                 if let estimate {
                     let saving = totalOriginalSize > 0 ? 100 - Int(Double(estimate) / Double(totalOriginalSize) * 100) : 0
                     Text(images.count == 1
-                         ? "≈ \(Self.format(estimate))"
-                         : "≈ \(Self.format(estimate)) for \(images.count) images")
+                         ? LF("≈ %@", String(describing: Self.format(estimate)))
+                         : LF("≈ %@ for %@ images", String(describing: Self.format(estimate)), String(describing: images.count)))
                         .font(.system(size: 12, weight: .semibold))
-                    + Text(saving > 0 ? "  (\(saving)% smaller)" : "  (no smaller)")
+                    + Text(saving > 0 ? LF("  (%@% smaller)", String(describing: saving)) : L("  (no smaller)"))
                         .font(.system(size: 12))
                         .foregroundStyle(saving > 0 ? Color.secondary : Color.orange)
                 } else {

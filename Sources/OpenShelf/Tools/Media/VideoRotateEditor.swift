@@ -32,7 +32,7 @@ struct VideoRotateEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Rotate",
+            title: L("Rotate"),
             primaryTitle: primaryTitle,
             isPrimaryEnabled: isBatch
                 ? batch.progress == nil && editedCount > 0
@@ -93,13 +93,13 @@ struct VideoRotateEditor: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(rotation == .flipHorizontal ? "Flip horizontally" : "Rotate \(rotation.title)")
+                        .accessibilityLabel(rotation == .flipHorizontal ? L("Flip horizontally") : LF("Rotate %@", String(describing: rotation.title)))
                         .accessibilityAddTraits(isSelected ? .isSelected : [])
                     }
                 }
 
                 Text(model.rotation.isLossless
-                     ? "Turning keeps the original quality; only the orientation changes."
+                     ? L("Turning keeps the original quality; only the orientation changes.")
                      : "Flipping re-encodes the video.")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
@@ -124,7 +124,7 @@ struct VideoRotateEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Apply" }
+        guard isBatch else { return L("Apply") }
         switch editedCount {
         case 0: return "Rotate Videos"
         case 1: return "Rotate 1 Video"
@@ -147,7 +147,7 @@ struct VideoRotateEditor: View {
             return
         }
         let jobs = models.filter { $0.loadError == nil }.map { ($0.url, $0.rotation) }
-        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: "rotated", unchangedLabel: "not rotated")
+        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: L("rotated"), unchangedLabel: L("not rotated"))
         batch.start(jobs.count, outcome: outcome, actions: actions) { index, progress in
             [try await MediaTools.rotate(jobs[index].0, by: jobs[index].1, progress: progress)]
         }
@@ -192,7 +192,7 @@ final class RotateModel {
         } catch {
             // Moving to another video cancels this; it loads again when shown.
             guard !Task.isCancelled else { return }
-            loadError = MediaLoading.loadError(error, otherwise: "This video can’t be read.")
+            loadError = MediaLoading.loadError(error, otherwise: L("This video can’t be read."))
         }
     }
 

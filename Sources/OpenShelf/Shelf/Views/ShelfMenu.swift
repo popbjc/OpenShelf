@@ -8,12 +8,12 @@ enum ShelfMenu {
         let isPlural = items.count > 1
         let menu = NSMenu()
 
-        menu.addItem(ClosureMenuItem("Open") { FileActions.open(urls) })
-        menu.addItem(ClosureMenuItem("Quick Look") { QuickLookCoordinator.shared.toggle(urls) })
-        menu.addItem(ClosureMenuItem("Show in Finder") { FileActions.reveal(urls) })
+        menu.addItem(ClosureMenuItem(L("Open")) { FileActions.open(urls) })
+        menu.addItem(ClosureMenuItem(L("Quick Look")) { QuickLookCoordinator.shared.toggle(urls) })
+        menu.addItem(ClosureMenuItem(L("Show in Finder")) { FileActions.reveal(urls) })
         menu.addItem(.separator())
-        menu.addItem(ClosureMenuItem("Copy") { FileActions.copyFiles(urls) })
-        menu.addItem(ClosureMenuItem(isPlural ? "Copy Paths" : "Copy Path") { FileActions.copyPaths(urls) })
+        menu.addItem(ClosureMenuItem(L("Copy")) { FileActions.copyFiles(urls) })
+        menu.addItem(ClosureMenuItem(isPlural ? "Copy Paths" : L("Copy Path")) { FileActions.copyPaths(urls) })
         menu.addItem(ClosureMenuItem("Share…") { [weak anchor] in
             guard let anchor else { return }
             NSSharingServicePicker(items: urls).show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .minY)

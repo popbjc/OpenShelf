@@ -54,7 +54,7 @@ enum FileActions {
     static func moveWithPrompt(_ urls: [URL]) -> (destination: URL, movedCount: Int, moves: [URL: URL])? {
         let panel = NSOpenPanel()
         panel.title = urls.count == 1 ? "Move “\(urls[0].lastPathComponent)” to…" : "Move \(urls.count) Files to…"
-        panel.prompt = "Move"
+        panel.prompt = L("Move")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.canCreateDirectories = true
@@ -66,7 +66,7 @@ enum FileActions {
         let failures = result.failures
         if !failures.isEmpty {
             let alert = NSAlert()
-            alert.messageText = failures.count == 1 ? "A file couldn’t be moved" : "\(failures.count) files couldn’t be moved"
+            alert.messageText = failures.count == 1 ? L("A file couldn’t be moved") : LF("%@ files couldn’t be moved", String(describing: failures.count))
             alert.informativeText = failures.joined(separator: "\n")
             alert.runModal()
         }

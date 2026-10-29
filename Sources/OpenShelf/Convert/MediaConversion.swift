@@ -14,7 +14,7 @@ enum MediaConversion {
         progress: @escaping @Sendable (Double) -> Void
     ) async throws -> URL {
         guard let pathExtension = format.fileExtension else {
-            throw ConversionError.unsupported("media to \(format.title)")
+            throw ConversionError.unsupported(LF("media to %@", String(describing: format.title)))
         }
         let destination = OutputNaming.destination(for: source, pathExtension: pathExtension)
         let isNative = MediaFormats.isAVFoundationReadable(source)
@@ -80,7 +80,7 @@ enum MediaConversion {
         case .gif:
             try await VideoGIF.write(source, to: destination, settings: settings.gif, progress: progress)
         default:
-            throw ConversionError.unsupported("media to \(format.title)")
+            throw ConversionError.unsupported(LF("media to %@", String(describing: format.title)))
         }
     }
 
@@ -152,7 +152,7 @@ enum MediaConversion {
         // ffprobe answers for the rest, including "native" files AVFoundation
         // can't open. When it can't tell either, let the conversion try and report.
         guard hasAudio ?? MediaProbe.hasAudioTrack(source, ffprobe: tools.ffprobe) ?? true else {
-            throw ConversionError.failed("“\(source.lastPathComponent)” has no audio track.")
+            throw ConversionError.failed(LF("“%@” has no audio track.", String(describing: source.lastPathComponent)))
         }
     }
 
@@ -168,7 +168,7 @@ enum MediaConversion {
         // `MediaFallback`) rather than the export's catch-all error.
         _ = try await asset.load(.duration)
         guard let session = AVAssetExportSession(asset: asset, presetName: preset) else {
-            throw ConversionError.failed("This file can’t be exported as \(destination.pathExtension.uppercased()).")
+            throw ConversionError.failed(LF("This file can’t be exported as %@.", String(describing: destination.pathExtension.uppercased())))
         }
         session.outputURL = destination
         session.outputFileType = fileType
@@ -190,7 +190,7 @@ enum MediaConversion {
         }
         try Task.checkCancellation()
         guard session.status == .completed else {
-            throw session.error ?? ConversionError.failed("Export failed.")
+            throw session.error ?? ConversionError.failed(L("Export failed."))
         }
     }
 }

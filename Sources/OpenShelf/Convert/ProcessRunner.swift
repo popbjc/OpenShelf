@@ -5,7 +5,7 @@ struct ProcessFailure: LocalizedError {
     let message: String
 
     var errorDescription: String? {
-        message.isEmpty ? "\(tool) failed." : "\(tool) failed: \(FailureMessage.sanitized(message))"
+        message.isEmpty ? LF("%@ failed.", String(describing: tool)) : LF("%@ failed: %@", String(describing: tool), String(describing: FailureMessage.sanitized(message)))
     }
 }
 
@@ -25,7 +25,7 @@ struct MissingToolError: LocalizedError, Equatable {
     }
 
     var errorDescription: String? {
-        "\(name) isn’t installed any more."
+        LF("%@ isn’t installed any more.", String(describing: name))
     }
 }
 

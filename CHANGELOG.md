@@ -6,6 +6,27 @@ tags `v<version>` and publishes a GitHub release with that section as notes.
 
 Format: one `## [x.y.z] - YYYY-MM-DD` heading per version, newest first.
 
+## [1.9.0] - 2026-10-29
+
+### New
+
+- **简体中文界面 (Simplified Chinese interface).** OpenShelf now follows the
+  system language: the wheels, tools, editors, Settings, the tour, toasts and
+  error messages all appear in Chinese on a Chinese Mac, while English users
+  see exactly what they saw before. Translations live in
+  `Sources/OpenShelf/Resources/zh-Hans.lproj/Localizable.strings`, keyed by
+  the English text, so a missing entry falls back to English instead of
+  showing a raw key. The privacy prompt is localized too, through
+  `InfoPlist.strings`. Shortcuts and Spotlight action names stay English for
+  now, because App Intents reads them at build time.
+
+### Improved
+
+- Strings that travel through plain `String` values (tool titles, toast and
+  error messages) now go through a small `L()` / `LF()` helper in
+  `Support/Localization.swift`; SwiftUI's own `Text("…")` localization covers
+  the rest.
+
 ## [Unreleased]
 
 ### New

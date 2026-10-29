@@ -64,7 +64,7 @@ final class MediaBatchExport {
                         // Late reports mustn't bring back a finished progress bar.
                         guard self?.progress != nil else { return }
                         self?.progress = fraction
-                        self?.detail = count > 1 ? "Exporting \(index + 1) of \(count)…" : nil
+                        self?.detail = count > 1 ? LF("Exporting %@ of %@…", String(describing: index + 1), String(describing: count)) : nil
                     }
                 }, export: export)
                 self?.finish()

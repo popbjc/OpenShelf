@@ -32,30 +32,30 @@ enum FileTool: CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .compress: "Compress"
-        case .metadata: "Metadata"
-        case .edit: "Edit"
-        case .annotate: "Annotate"
+        case .compress: L("Compress")
+        case .metadata: L("Metadata")
+        case .edit: L("Edit")
+        case .annotate: L("Annotate")
         case .addBackground: "Add BG"
-        case .crop: "Crop"
-        case .resize: "Resize"
-        case .removeBackground: "Remove BG"
-        case .redact: "Redact"
+        case .crop: L("Crop")
+        case .resize: L("Resize")
+        case .removeBackground: L("Remove BG")
+        case .redact: L("Redact")
         case .ocr: "OCR"
-        case .readQR: "Read QR"
-        case .combinePDF: "Combine"
+        case .readQR: L("Read QR")
+        case .combinePDF: L("Combine")
         case .organizePages: "Pages"
-        case .splitPDF: "Split"
-        case .compressPDF: "Compress"
-        case .pdfMetadata: "Metadata"
-        case .trim: "Trim"
-        case .speed: "Speed"
-        case .cropVideo: "Crop"
-        case .compressVideo: "Compress"
-        case .mute: "Mute"
-        case .mergeMedia: "Merge"
-        case .splitMedia: "Split"
-        case .rotateVideo: "Rotate"
+        case .splitPDF: L("Split")
+        case .compressPDF: L("Compress")
+        case .pdfMetadata: L("Metadata")
+        case .trim: L("Trim")
+        case .speed: L("Speed")
+        case .cropVideo: L("Crop")
+        case .compressVideo: L("Compress")
+        case .mute: L("Mute")
+        case .mergeMedia: L("Merge")
+        case .splitMedia: L("Split")
+        case .rotateVideo: L("Rotate")
         }
     }
 
@@ -118,8 +118,8 @@ enum FileTool: CaseIterable, Hashable {
         }
         return Toast(
             systemImage: "arrow.triangle.2.circlepath",
-            title: "Convert to \(format) first",
-            subtitle: "Tap \(convertKeys) while dragging to convert"
+            title: LF("Convert to %@ first", String(describing: format)),
+            subtitle: LF("Tap %@ while dragging to convert", String(describing: convertKeys))
         )
     }
 

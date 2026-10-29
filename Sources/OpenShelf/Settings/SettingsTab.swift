@@ -17,12 +17,12 @@ enum SettingsTab: String, CaseIterable, Sendable {
 
     var title: String {
         switch self {
-        case .general: "General"
-        case .wheels: "Wheels"
-        case .shelves: "Shelves"
-        case .output: "Output"
-        case .extraFormats: "Extra Formats"
-        case .updates: "Updates"
+        case .general: L("General")
+        case .wheels: L("Wheels")
+        case .shelves: L("Shelves")
+        case .output: L("Output")
+        case .extraFormats: L("Extra Formats")
+        case .updates: L("Updates")
         }
     }
 

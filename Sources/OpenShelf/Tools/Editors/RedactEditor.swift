@@ -9,9 +9,9 @@ enum RedactionStyle: CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .box: "Black box"
-        case .pixelate: "Pixelate"
-        case .blur: "Blur"
+        case .box: L("Black box")
+        case .pixelate: L("Pixelate")
+        case .blur: L("Blur")
         }
     }
 }
@@ -173,7 +173,7 @@ struct RedactEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Redact",
+            title: L("Redact"),
             primaryTitle: primaryTitle,
             isPrimaryEnabled: !isWorking && editedCount > 0,
             actions: actions,
@@ -203,7 +203,7 @@ struct RedactEditor: View {
                 }
 
                 // Applies to the selected area, or to new areas when none is selected.
-                EditorRow(label: selectedID == nil ? "Style" : "This area") {
+                EditorRow(label: selectedID == nil ? L("Style") : L("This area")) {
                     Picker("Style", selection: $style) {
                         ForEach(RedactionStyle.allCases) { Text($0.title).tag($0) }
                     }
@@ -211,7 +211,7 @@ struct RedactEditor: View {
                     .labelsHidden()
                 }
 
-                EditorSlider(label: "Strength", value: $strength, range: 1...100, unit: "%")
+                EditorSlider(label: L("Strength"), value: $strength, range: 1...100, unit: "%")
                     .disabled(style == .box)
                     .opacity(style == .box ? 0.45 : 1)
             }
@@ -235,11 +235,11 @@ struct RedactEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Save" }
+        guard isBatch else { return L("Save") }
         switch editedCount {
-        case 0: return "Save Images"
-        case 1: return "Save 1 Image"
-        default: return "Save \(editedCount) Images"
+        case 0: return L("Save Images")
+        case 1: return L("Save 1 Image")
+        default: return LF("Save %@ Images", String(describing: editedCount))
         }
     }
 
@@ -255,9 +255,9 @@ struct RedactEditor: View {
 
     private var hint: String {
         switch regions.count {
-        case 0: "Drag over anything you want to hide."
-        case 1: "1 area · drag to move, ⌫ to remove"
-        case let count: "\(count) areas · drag to move, ⌫ to remove"
+        case 0: L("Drag over anything you want to hide.")
+        case 1: L("1 area · drag to move, ⌫ to remove")
+        case let count: LF("%@ areas · drag to move, ⌫ to remove", String(describing: count))
         }
     }
 
@@ -479,7 +479,7 @@ enum ImageRedactor {
     /// Hides each image's areas and saves it; images without areas are left
     /// alone and counted.
     static func run(_ jobs: [(EditableImage, [RedactRegion])]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "redacted", unchangedLabel: "not redacted")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("redacted"), unchangedLabel: L("not redacted"))
         for (image, regions) in jobs {
             guard !regions.isEmpty else {
                 outcome.unchanged += 1

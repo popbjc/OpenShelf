@@ -141,7 +141,7 @@ enum OCR {
             let text = recognised.map { $0.page.existingText ?? $0.lines.map(\.text).joined(separator: "\n") }
                 .joined(separator: "\n\n")
             guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                throw ConversionError.failed("No text was found in “\(url.lastPathComponent)”.")
+                throw ConversionError.failed(LF("No text was found in “%@”.", String(describing: url.lastPathComponent)))
             }
             try job.checkCancellation()
             try Data(text.utf8).writeNew(to: destination)
@@ -216,7 +216,7 @@ struct OCRPage: @unchecked Sendable {
         if FileKind(url: url) == .pdf {
             guard let document = PDFDocument(url: url) else { throw ConversionError.unreadable(url) }
             guard !document.isLocked else {
-                throw ConversionError.failed("“\(url.lastPathComponent)” is password-protected. Remove the password in Preview first.")
+                throw ConversionError.failed(LF("“%@” is password-protected. Remove the password in Preview first.", String(describing: url.lastPathComponent)))
             }
             return (0..<document.pageCount).compactMap { document.page(at: $0) }.map { page in
                 let bounds = page.bounds(for: .mediaBox)

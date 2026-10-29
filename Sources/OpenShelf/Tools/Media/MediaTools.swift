@@ -11,14 +11,14 @@ enum MediaToolError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noVideo(let url): "“\(url.lastPathComponent)” has no video track."
-        case .noTracks(let url): "“\(url.lastPathComponent)” has no audio or video."
-        case .cannotExport(let detail): "This file can’t be exported \(detail)."
+        case .noVideo(let url): LF("“%@” has no video track.", String(describing: url.lastPathComponent))
+        case .noTracks(let url): LF("“%@” has no audio or video.", String(describing: url.lastPathComponent))
+        case .cannotExport(let detail): LF("This file can’t be exported %@.", String(describing: detail))
         case .failed(let detail): detail
         case .notSmaller(let count):
             count == 1
-                ? "Already as small as it gets — nothing saved."
-                : "These \(count) videos are already as small as they get — nothing saved."
+                ? L("Already as small as it gets — nothing saved.")
+                : LF("These %@ videos are already as small as they get — nothing saved.", String(describing: count))
         }
     }
 }
@@ -192,7 +192,7 @@ enum MediaTools {
             sampleRate: format.sampleRate * rate,
             channels: format.channelCount,
             interleaved: false
-        ) else { throw MediaToolError.cannotExport("at this speed") }
+        ) else { throw MediaToolError.cannotExport(L("at this speed")) }
 
         let temporary = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".caf")
         defer { try? FileManager.default.removeItem(at: temporary) }
@@ -201,7 +201,7 @@ enum MediaTools {
             let frameCount: AVAudioFrameCount = 32_768
             guard let input = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount),
                   let output = AVAudioPCMBuffer(pcmFormat: scaledFormat, frameCapacity: frameCount)
-            else { throw MediaToolError.cannotExport("at this speed") }
+            else { throw MediaToolError.cannotExport(L("at this speed")) }
             while source.framePosition < source.length {
                 try Task.checkCancellation()
                 try source.read(into: input, frameCount: frameCount)
@@ -256,7 +256,7 @@ enum MediaTools {
 
         let composition = AVMutableComposition()
         guard let compositionVideo = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else {
-            throw MediaToolError.cannotExport("with a crop")
+            throw MediaToolError.cannotExport(L("with a crop"))
         }
         try compositionVideo.insertTimeRange(fullRange, of: videoTrack, at: .zero)
         for track in audioTracks {
@@ -305,7 +305,7 @@ enum MediaTools {
             else { continue }
             return session
         }
-        throw MediaToolError.cannotExport("as \(fileType.rawValue.split(separator: ".").last.map(String.init)?.uppercased() ?? "this format")")
+        throw MediaToolError.cannotExport(LF("as %@", fileType.rawValue.split(separator: ".").last.map(String.init)?.uppercased() ?? L("this format")))
     }
 
     /// Runs `session` with progress reporting; cancelling the task cancels the export.
@@ -345,7 +345,7 @@ enum MediaTools {
         }
         guard box.session.status == .completed else {
             discardPartial(partial)
-            throw box.session.error ?? MediaToolError.failed("Export failed.")
+            throw box.session.error ?? MediaToolError.failed(L("Export failed."))
         }
         try moveIntoPlace(partial, destination: destination)
         progress(1)

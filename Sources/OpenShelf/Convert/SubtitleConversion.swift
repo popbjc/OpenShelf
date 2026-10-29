@@ -16,7 +16,7 @@ enum SubtitleConversion {
         case .txt: output = plainText(cues)
         case .srt: output = srt(cues)
         case .vtt: output = vtt(cues)
-        default: throw ConversionError.unsupported("subtitles to \(format.title)")
+        default: throw ConversionError.unsupported(LF("subtitles to %@", String(describing: format.title)))
         }
         let destination = OutputNaming.destination(for: source, pathExtension: format.rawValue)
         try output.write(to: destination, atomically: true, encoding: .utf8)

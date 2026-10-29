@@ -79,7 +79,7 @@ enum VideoGIF {
     ) async throws {
         let asset = AVURLAsset(url: source)
         guard let track = try await asset.loadTracks(withMediaType: .video).first else {
-            throw ConversionError.failed("“\(source.lastPathComponent)” has no video to make a GIF from.")
+            throw ConversionError.failed(LF("“%@” has no video to make a GIF from.", String(describing: source.lastPathComponent)))
         }
         let (naturalSize, transform) = try await track.load(.naturalSize, .preferredTransform)
         let duration = try await asset.load(.duration).seconds
@@ -189,11 +189,11 @@ private final class GIFJob: @unchecked Sendable {
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
         ])
         trackOutput.alwaysCopiesSampleData = false
-        guard reader.canAdd(trackOutput) else { throw ConversionError.failed("This video can’t be read.") }
+        guard reader.canAdd(trackOutput) else { throw ConversionError.failed(L("This video can’t be read.")) }
         reader.add(trackOutput)
         lock.withLock { self.reader = reader }
         guard !cancelled else { throw CancellationError() }
-        guard reader.startReading() else { throw reader.error ?? ConversionError.failed("This video can’t be read.") }
+        guard reader.startReading() else { throw reader.error ?? ConversionError.failed(L("This video can’t be read.")) }
         defer { reader.cancelReading() }
 
         let writer = try GIFAnimation.Writer(url: output, width: plan.width, height: plan.height)
@@ -225,12 +225,12 @@ private final class GIFJob: @unchecked Sendable {
         }
         guard !cancelled else { throw CancellationError() }
         if reader.status == .failed {
-            throw reader.error ?? ConversionError.failed("This video can’t be read.")
+            throw reader.error ?? ConversionError.failed(L("This video can’t be read."))
         }
         try autoreleasepool {
             try writeHeld(upTo: .infinity)
         }
-        guard writer.frameCount > 0 else { throw ConversionError.failed("No frames could be read from this video.") }
+        guard writer.frameCount > 0 else { throw ConversionError.failed(L("No frames could be read from this video.")) }
         try writer.finish()
     }
 
@@ -249,18 +249,18 @@ private final class GIFJob: @unchecked Sendable {
                   space: space,
                   bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
               )
-        else { throw ConversionError.failed("A frame of this video couldn’t be read.") }
+        else { throw ConversionError.failed(L("A frame of this video couldn’t be read.")) }
         context.interpolationQuality = .high
         context.concatenate(transform)
         context.draw(decoded, in: CGRect(origin: .zero, size: naturalSize))
-        guard let frame = context.makeImage() else { throw ConversionError.failed("A frame of this video couldn’t be read.") }
+        guard let frame = context.makeImage() else { throw ConversionError.failed(L("A frame of this video couldn’t be read.")) }
 
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(data, UTType.gif.identifier as CFString, 1, nil) else {
-            throw ConversionError.failed("GIFs can’t be written on this Mac.")
+            throw ConversionError.failed(L("GIFs can’t be written on this Mac."))
         }
         CGImageDestinationAddImage(destination, frame, nil)
-        guard CGImageDestinationFinalize(destination) else { throw ConversionError.failed("A frame couldn’t be encoded as GIF.") }
+        guard CGImageDestinationFinalize(destination) else { throw ConversionError.failed(L("A frame couldn’t be encoded as GIF.")) }
         return data as Data
     }
 }

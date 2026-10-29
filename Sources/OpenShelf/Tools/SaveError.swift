@@ -11,12 +11,12 @@ enum SaveError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .noPermission(let folder): "You don’t have permission to save in “\(folder)”."
-        case .folderMissing(let folder): "The folder “\(folder)” no longer exists."
-        case .readOnlyVolume(let folder): "“\(folder)” is on a disk that can’t be written to."
-        case .diskFull: "There isn’t enough free space on the disk."
-        case .nameTooLong(let file): "The name “\(file)” is too long. Rename the original to something shorter."
-        case .failed(let file): "“\(file)” couldn’t be saved."
+        case .noPermission(let folder): LF("You don’t have permission to save in “%@”.", String(describing: folder))
+        case .folderMissing(let folder): LF("The folder “%@” no longer exists.", String(describing: folder))
+        case .readOnlyVolume(let folder): LF("“%@” is on a disk that can’t be written to.", String(describing: folder))
+        case .diskFull: L("There isn’t enough free space on the disk.")
+        case .nameTooLong(let file): LF("The name “%@” is too long. Rename the original to something shorter.", String(describing: file))
+        case .failed(let file): LF("“%@” couldn’t be saved.", String(describing: file))
         }
     }
 

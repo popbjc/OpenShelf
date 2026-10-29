@@ -24,14 +24,14 @@ enum PDFConversion {
         let original = original ?? source
         // A locked PDF opens, but every page renders blank and has no text.
         guard !document.isLocked else {
-            throw ConversionError.failed("“\(source.lastPathComponent)” is password-protected. Remove the password in Preview first.")
+            throw ConversionError.failed(LF("“%@” is password-protected. Remove the password in Preview first.", String(describing: source.lastPathComponent)))
         }
 
         switch format {
         case .txt:
             let text = document.string ?? ""
             guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                throw ConversionError.failed("“\(source.lastPathComponent)” has no text to extract (it looks like a scan).")
+                throw ConversionError.failed(LF("“%@” has no text to extract (it looks like a scan).", String(describing: source.lastPathComponent)))
             }
             let destination = OutputNaming.destination(for: original, pathExtension: "txt")
             try text.write(to: destination, atomically: true, encoding: .utf8)
@@ -106,7 +106,7 @@ enum PDFConversion {
                 } else {
                     body = DocumentStructure.xhtml(PDFText.paragraphs(fromPageText: text).map { .paragraph([TextRun(text: $0)]) })
                 }
-                chapters.append(EpubChapter(title: "Page \(index + 1)", bodyXHTML: body))
+                chapters.append(EpubChapter(title: LF("Page %@", String(describing: index + 1)), bodyXHTML: body))
             }
             let destination = OutputNaming.destination(for: original, pathExtension: "epub")
             try EpubWriter.write(title: original.deletingPathExtension().lastPathComponent, chapters: chapters, images: images, to: destination)
@@ -121,14 +121,14 @@ enum PDFConversion {
         case .xlsx:
             let pages = try pageTexts(of: document, source: source, progress: progress)
             let sheets = pages.enumerated().map { index, text in
-                (name: "Page \(index + 1)", table: PDFText.rows(fromPageText: text))
+                (name: LF("Page %@", String(describing: index + 1)), table: PDFText.rows(fromPageText: text))
             }
             let destination = OutputNaming.destination(for: original, pathExtension: "xlsx")
             try XlsxWriter.write(sheets: sheets, to: destination)
             return [destination]
 
         default:
-            throw ConversionError.unsupported("PDF to \(format.title)")
+            throw ConversionError.unsupported(LF("PDF to %@", String(describing: format.title)))
         }
     }
 
@@ -145,7 +145,7 @@ enum PDFConversion {
             return document.page(at: index)?.string ?? ""
         }
         guard pages.contains(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else {
-            throw ConversionError.failed("“\(source.lastPathComponent)” has no text to extract (it looks like a scan).")
+            throw ConversionError.failed(LF("“%@” has no text to extract (it looks like a scan).", String(describing: source.lastPathComponent)))
         }
         return pages
     }
@@ -210,7 +210,7 @@ enum DocumentConversion {
 
     static func convertBuiltIn(_ source: URL, to format: OutputFormat) async throws -> URL {
         guard let pathExtension = format.fileExtension else {
-            throw ConversionError.unsupported("document to \(format.title)")
+            throw ConversionError.unsupported(LF("document to %@", String(describing: format.title)))
         }
         let destination = OutputNaming.destination(for: source, pathExtension: pathExtension)
 
@@ -282,7 +282,7 @@ enum DocumentConversion {
         case .html:
             try text.data(from: range, documentAttributes: [.documentType: NSAttributedString.DocumentType.html]).write(to: destination)
         default:
-            throw ConversionError.unsupported("document to \(format.title)")
+            throw ConversionError.unsupported(LF("document to %@", String(describing: format.title)))
         }
     }
 

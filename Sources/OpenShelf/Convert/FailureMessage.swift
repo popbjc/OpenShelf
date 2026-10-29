@@ -18,7 +18,7 @@ enum FailureMessage {
             return ConversionError.failed(permissionMessage(for: folder))
         }
         if error is ProcessFailure {
-            return ConversionError.failed("“\(source.lastPathComponent)” couldn’t be converted: \(sanitized(text))")
+            return ConversionError.failed(LF("“%@” couldn’t be converted: %@", String(describing: source.lastPathComponent), String(describing: sanitized(text))))
         }
         return error
     }
@@ -34,36 +34,36 @@ enum FailureMessage {
             return permissionMessage(for: source.deletingLastPathComponent())
         }
         if mentions("no space left") {
-            return "There isn’t enough free space to save the result."
+            return L("There isn’t enough free space to save the result.")
         }
         if kind == .archive {
             if mentions("password", "encryption key", "passphrase", "encrypted") {
-                return "“\(name)” is password-protected; OpenShelf can’t open encrypted archives."
+                return LF("“%@” is password-protected; OpenShelf can’t open encrypted archives.", String(describing: name))
             }
             if mentions("pkzip signature", "unrecognized archive format", "not in gzip format", "damaged", "truncated",
                         "central directory", "unexpected end", "invalid", "error reading") {
-                return "“\(name)” is damaged or isn’t an archive OpenShelf can open."
+                return LF("“%@” is damaged or isn’t an archive OpenShelf can open.", String(describing: name))
             }
         }
         if mentions("invalid data found", "moov atom not found", "could not find codec", "end of file", "unknown format") {
-            return "“\(name)” is damaged or in a format OpenShelf can’t read."
+            return LF("“%@” is damaged or in a format OpenShelf can’t read.", String(describing: name))
         }
         return nil
     }
 
     static func permissionMessage(for folder: URL) -> String {
-        "You don’t have permission to save in “\(folder.lastPathComponent)”."
+        LF("You don’t have permission to save in “%@”.", String(describing: folder.lastPathComponent))
     }
 
     /// Tool output with temporary paths replaced and the tool's name prefix removed.
     static func sanitized(_ text: String) -> String {
         var result = text.replacingOccurrences(
             of: #"'?(/private)?/(var/folders|tmp|private/var/folders)/[^\s']*'?"#,
-            with: "a temporary file",
+            with: L("a temporary file"),
             options: .regularExpression
         )
         result = result.replacingOccurrences(of: #"^[A-Za-z0-9_-]+:\s*"#, with: "", options: .regularExpression)
-        result = result.replacingOccurrences(of: "Error!", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
-        return result.isEmpty ? "the tool reported an error." : result
+        result = result.replacingOccurrences(of: L("Error!"), with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? L("the tool reported an error.") : result
     }
 }

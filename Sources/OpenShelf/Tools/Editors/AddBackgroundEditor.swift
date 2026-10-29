@@ -104,18 +104,18 @@ struct AddBackgroundEditor: View {
                     }
                 }
 
-                EditorRow(label: "Background") {
+                EditorRow(label: L("Background")) {
                     // Swatches 1 pt apart, so both rows fit the 460 pt window.
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 1) {
                             ForEach(gradientSwatches.indices, id: \.self) { index in
-                                swatch(isSelected: settings.choice == .gradient(index), help: "Gradient \(index + 1)") {
+                                swatch(isSelected: settings.choice == .gradient(index), help: LF("Gradient %@", String(describing: index + 1))) {
                                     settings.choice = .gradient(index)
                                 } content: {
                                     Image(decorative: gradientSwatches[index], scale: 2).resizable()
                                 }
                             }
-                            swatch(isSelected: settings.choice == .customImage, help: "Choose a background image…", action: chooseBackgroundImage) {
+                            swatch(isSelected: settings.choice == .customImage, help: L("Choose a background image…"), action: chooseBackgroundImage) {
                                 if let backgroundImage = settings.backgroundImage {
                                     Image(decorative: backgroundImage, scale: 1).resizable().scaledToFill()
                                 } else {
@@ -147,11 +147,11 @@ struct AddBackgroundEditor: View {
                     }
                 }
 
-                EditorSlider(label: "Padding", value: settingsBinding.padding, range: 0...1000)
-                EditorSlider(label: "Corners", value: settingsBinding.corners, range: 0...400)
-                EditorSlider(label: "Shadow", value: settingsBinding.shadow, range: 0...200)
+                EditorSlider(label: L("Padding"), value: settingsBinding.padding, range: 0...1000)
+                EditorSlider(label: L("Corners"), value: settingsBinding.corners, range: 0...400)
+                EditorSlider(label: L("Shadow"), value: settingsBinding.shadow, range: 0...200)
 
-                EditorRow(label: "Ratio") {
+                EditorRow(label: L("Ratio")) {
                     Picker("Ratio", selection: settingsBinding.ratio) {
                         ForEach(CanvasRatio.allCases) { Text($0.title).tag($0) }
                     }
@@ -163,11 +163,11 @@ struct AddBackgroundEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Save with Background" }
+        guard isBatch else { return L("Save with Background") }
         switch editedCount {
-        case 0: return "Save Images"
-        case 1: return "Save 1 Image"
-        default: return "Save \(editedCount) Images"
+        case 0: return L("Save Images")
+        case 1: return L("Save 1 Image")
+        default: return LF("Save %@ Images", String(describing: editedCount))
         }
     }
 
@@ -246,7 +246,7 @@ struct AddBackgroundEditor: View {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = false
-        panel.message = "Choose a background image"
+        panel.message = L("Choose a background image")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             var changed = settings
@@ -324,7 +324,7 @@ enum BackgroundAdder {
     /// Saves each image on its background; images it wouldn't change (no
     /// margin or corners, nothing see-through) are left alone and counted.
     static func run(_ jobs: [(EditableImage, BackgroundComposition)]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "saved", unchangedLabel: "unchanged")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("saved"), unchangedLabel: L("unchanged"))
         for (image, composition) in jobs {
             guard composition.changesImage(of: image.pixelSize, isTransparent: image.isTransparent) else {
                 outcome.unchanged += 1
@@ -343,7 +343,7 @@ enum CanvasRatio: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .auto: "Auto"
+        case .auto: L("Auto")
         case .square: "1:1"
         case .landscape: "16:9"
         case .portrait: "4:5"
@@ -389,7 +389,7 @@ struct HexColor: Sendable, ExpressibleByIntegerLiteral {
 
 private enum SolidColors {
     static let all: [HexColor] = [0xFFFFFF, 0xF5C542, 0x7BC950, 0x2FA38A, 0x5BC0D9, 0x3D6FE0, 0x4B47A8, 0x2C2F36, 0x8E5BD6]
-    static let names = ["White", "Yellow", "Green", "Teal", "Cyan", "Blue", "Indigo", "Charcoal", "Purple"]
+    static let names = [L("White"), L("Yellow"), L("Green"), L("Teal"), L("Cyan"), L("Blue"), L("Indigo"), L("Charcoal"), L("Purple")]
 }
 
 /// A soft background: a diagonal base gradient with blurred colour blobs on top.

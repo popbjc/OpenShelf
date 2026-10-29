@@ -32,7 +32,7 @@ struct MediaSplitEditor: View {
     var body: some View {
         @Bindable var model = model
         EditorChrome(
-            title: "Split",
+            title: L("Split"),
             primaryTitle: primaryTitle,
             isPrimaryEnabled: isBatch
                 ? batch.progress == nil && editedCount > 0
@@ -141,7 +141,7 @@ struct MediaSplitEditor: View {
                 .frame(maxHeight: .infinity)
                 .background(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.1)))
 
-                Text(model.segments.count >= 2 ? "Creates \(model.segments.count) files: “\(model.partName)”…" : " ")
+                Text(model.segments.count >= 2 ? LF("Creates %@ files: “%@”…", String(describing: model.segments.count), String(describing: model.partName)) : " ")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
 
@@ -162,7 +162,7 @@ struct MediaSplitEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Split" }
+        guard isBatch else { return L("Split") }
         switch editedCount {
         case 0: return "Split Files"
         case 1: return "Split 1 File"
@@ -199,7 +199,7 @@ struct MediaSplitEditor: View {
             return
         }
         let jobs = models.map { ($0.url, $0.segments) }.filter { $0.1.count >= 2 }
-        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: "saved", unchangedLabel: "not split")
+        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: L("saved"), unchangedLabel: L("not split"))
         batch.start(jobs.count, outcome: outcome, actions: actions) { index, progress in
             try await MediaTools.split(jobs[index].0, into: jobs[index].1) { fraction, _ in progress(fraction) }
         }

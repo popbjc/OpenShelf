@@ -6,9 +6,9 @@ enum WheelKind: CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .convert: "Convert wheel"
-        case .tools: "Tools wheel"
-        case .actions: "Actions wheel"
+        case .convert: L("Convert wheel")
+        case .tools: L("Tools wheel")
+        case .actions: L("Actions wheel")
         }
     }
 }
@@ -25,13 +25,13 @@ enum FileAction: CaseIterable {
 
     var title: String {
         switch self {
-        case .newShelf: "Shelf"
-        case .addToShelf: "Add to Shelf"
+        case .newShelf: L("Shelf")
+        case .addToShelf: L("Add to Shelf")
         case .airDrop: "AirDrop"
-        case .copy: "Copy"
-        case .move: "Move"
-        case .copyPath: "Copy Path"
-        case .terminal: "Terminal"
+        case .copy: L("Copy")
+        case .move: L("Move")
+        case .copyPath: L("Copy Path")
+        case .terminal: L("Terminal")
         }
     }
 

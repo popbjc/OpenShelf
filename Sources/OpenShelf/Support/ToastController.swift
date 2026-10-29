@@ -249,6 +249,6 @@ private struct ProgressCard: View {
                 .shadow(color: .black.opacity(0.18), radius: 12, y: 5)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityValue(fraction.map { "\(Int($0 * 100)) percent" } ?? "In progress")
+        .accessibilityValue(fraction.map { LF("%@ percent", String(describing: Int($0 * 100))) } ?? L("In progress"))
     }
 }

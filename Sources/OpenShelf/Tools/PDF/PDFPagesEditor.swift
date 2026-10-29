@@ -92,12 +92,12 @@ struct PDFPagesEditor: View {
     }
 
     private var primaryTitle: String {
-        if isWorking { return "Saving…" }
-        guard isBatch else { return "Save" }
+        if isWorking { return L("Saving…") }
+        guard isBatch else { return L("Save") }
         switch editedCount {
-        case 0: return "Save PDFs"
-        case 1: return "Save 1 PDF"
-        default: return "Save \(editedCount) PDFs"
+        case 0: return L("Save PDFs")
+        case 1: return L("Save 1 PDF")
+        default: return LF("Save %@ PDFs", String(describing: editedCount))
         }
     }
 
@@ -166,8 +166,8 @@ struct PDFPagesEditor: View {
     }
 
     private var summary: String {
-        let count = pages.count == 1 ? "1 page" : "\(pages.count) pages"
-        return selection.isEmpty ? "\(count) · Drag to reorder, click to select" : "\(count) · \(selection.count) selected"
+        let count = pages.count == 1 ? L("1 page") : LF("%@ pages", String(describing: pages.count))
+        return selection.isEmpty ? LF("%@ · Drag to reorder, click to select", String(describing: count)) : LF("%@ · %@ selected", String(describing: count), String(describing: selection.count))
     }
 
     private func select(_ page: PDFPageEdit) {

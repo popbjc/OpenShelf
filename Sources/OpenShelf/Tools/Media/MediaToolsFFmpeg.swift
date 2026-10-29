@@ -113,7 +113,7 @@ extension MediaTools {
     }
 
     static func mergeWithFFmpeg(_ urls: [URL], ffmpeg: URL, tools: ExternalTools, progress: @escaping @Sendable (Double) -> Void) async throws -> URL {
-        guard let first = urls.first else { throw MediaToolError.failed("Choose at least two files to merge.") }
+        guard let first = urls.first else { throw MediaToolError.failed(L("Choose at least two files to merge.")) }
         var clips: [ProbedMedia] = []
         for url in urls {
             clips.append(try await ProbedMedia.load(url, ffprobe: tools.ffprobe))

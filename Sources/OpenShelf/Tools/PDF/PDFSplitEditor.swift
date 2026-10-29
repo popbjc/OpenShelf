@@ -88,7 +88,7 @@ struct PDFSplitEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: isBatch ? "Split PDFs" : "Split PDF",
+            title: isBatch ? L("Split PDFs") : L("Split PDF"),
             primaryTitle: primaryTitle,
             isPrimaryEnabled: !isWorking && (isBatch ? editedCount > 0 : !isLocked && fileCount > 0),
             actions: actions,
@@ -109,7 +109,7 @@ struct PDFSplitEditor: View {
                         if isOn { rule = rules[index] }
                     }
                 } else {
-                    PDFFileHeader(url: urls[0], detail: pageCount == 1 ? "1 page" : "\(pageCount) pages")
+                    PDFFileHeader(url: urls[0], detail: pageCount == 1 ? L("1 page") : LF("%@ pages", String(describing: pageCount)))
                 }
 
                 Picker("Split", selection: ruleBinding.mode) {
@@ -126,7 +126,7 @@ struct PDFSplitEditor: View {
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 case .chunks:
-                    EditorRow(label: "Pages each") {
+                    EditorRow(label: L("Pages each")) {
                         Stepper(value: ruleBinding.chunkSize, in: 1...max(pageLimit, 1)) {
                             Text("\(rule.chunkSize)")
                                 .font(.system(size: 12).monospacedDigit())
@@ -134,8 +134,8 @@ struct PDFSplitEditor: View {
                         Spacer(minLength: 0)
                     }
                 case .ranges:
-                    EditorRow(label: "Ranges") {
-                        TextField("e.g. 1-3, 4, 5-\(max(pageLimit, 5))", text: ruleBinding.rangesText)
+                    EditorRow(label: L("Ranges")) {
+                        TextField(LF("e.g. 1-3, 4, 5-%@", String(describing: max(pageLimit, 5))), text: ruleBinding.rangesText)
                             .textFieldStyle(.roundedBorder)
                             .accessibilityLabel("Page ranges")
                     }
@@ -148,12 +148,12 @@ struct PDFSplitEditor: View {
     }
 
     private var primaryTitle: String {
-        if isWorking { return "Splitting…" }
-        guard isBatch else { return "Split" }
+        if isWorking { return L("Splitting…") }
+        guard isBatch else { return L("Split") }
         switch editedCount {
-        case 0: return "Split PDFs"
-        case 1: return "Split 1 PDF"
-        default: return "Split \(editedCount) PDFs"
+        case 0: return L("Split PDFs")
+        case 1: return L("Split 1 PDF")
+        default: return LF("Split %@ PDFs", String(describing: editedCount))
         }
     }
 
@@ -166,13 +166,13 @@ struct PDFSplitEditor: View {
                 switch groups {
                 case .success(let groups) where isBatch && !PDFTools.splits(groups, pageCount: pageCount):
                     // The rule asks for more pages than it has, so it stays whole.
-                    Label(pageCount == 1 ? "Not split: it has 1 page" : "Not split: it has \(pageCount) pages", systemImage: "equal.circle")
+                    Label(pageCount == 1 ? L("Not split: it has 1 page") : LF("Not split: it has %@ pages", String(describing: pageCount)), systemImage: "equal.circle")
                         .foregroundStyle(.secondary)
                 case .success(let groups):
-                    Label(groups.count == 1 ? "Creates 1 PDF" : "Creates \(groups.count) PDFs", systemImage: "doc.on.doc")
+                    Label(groups.count == 1 ? L("Creates 1 PDF") : LF("Creates %@ PDFs", String(describing: groups.count)), systemImage: "doc.on.doc")
                         .foregroundStyle(.primary)
                 case .failure(let error):
-                    Label(rule.rangesText.isEmpty ? "Enter the pages for each new PDF, separated by commas." : error.message,
+                    Label(rule.rangesText.isEmpty ? L("Enter the pages for each new PDF, separated by commas.") : error.message,
                           systemImage: rule.rangesText.isEmpty ? "info.circle" : "exclamationmark.triangle")
                         .foregroundStyle(rule.rangesText.isEmpty ? Color.secondary : Color.orange)
                 }
@@ -181,7 +181,7 @@ struct PDFSplitEditor: View {
             if isWorking {
                 ProgressView().controlSize(.small)
             } else if isBatch {
-                Text(totalFileCount == 1 ? "1 PDF in all" : "\(totalFileCount) PDFs in all")
+                Text(totalFileCount == 1 ? L("1 PDF in all") : LF("%@ PDFs in all", String(describing: totalFileCount)))
                     .foregroundStyle(.secondary)
             }
         }
@@ -269,7 +269,7 @@ struct PDFFileHeader: View {
                 }
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(count == 1 ? url.lastPathComponent : "\(count) PDFs")
+                Text(count == 1 ? url.lastPathComponent : LF("%@ PDFs", String(describing: count)))
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
                     .truncationMode(.middle)

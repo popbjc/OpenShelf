@@ -13,9 +13,9 @@ enum SplitMode: Hashable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .equalParts: "Equal parts"
-        case .everyInterval: "Every…"
-        case .atTimes: "At times"
+        case .equalParts: L("Equal parts")
+        case .everyInterval: L("Every…")
+        case .atTimes: L("At times")
         }
     }
 }
@@ -36,11 +36,11 @@ enum SplitPlanError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .unreadable(let text): "“\(text)” isn’t a time. Use minutes and seconds, like 1:30."
-        case .outOfRange(let text): "\(text) is past the end of the file."
-        case .noCuts: "Add at least one time to split at, like 0:30, 1:15."
-        case .tooMany(let count): "That would make \(count) parts; split into 100 or fewer."
-        case .intervalTooShort: "Parts must be at least 1 second long."
+        case .unreadable(let text): LF("“%@” isn’t a time. Use minutes and seconds, like 1:30.", String(describing: text))
+        case .outOfRange(let text): LF("%@ is past the end of the file.", String(describing: text))
+        case .noCuts: L("Add at least one time to split at, like 0:30, 1:15.")
+        case .tooMany(let count): LF("That would make %@ parts; split into 100 or fewer.", String(describing: count))
+        case .intervalTooShort: L("Parts must be at least 1 second long.")
         }
     }
 }
@@ -111,10 +111,10 @@ enum VideoRotation: Hashable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .left: "Left"
-        case .right: "Right"
+        case .left: L("Left")
+        case .right: L("Right")
         case .upsideDown: "180°"
-        case .flipHorizontal: "Flip"
+        case .flipHorizontal: L("Flip")
         }
     }
 
@@ -162,7 +162,7 @@ extension MediaTools {
     /// Joins videos (into "Merged.mp4") or audio files (into "Merged.m4a") in
     /// the given order, saved next to the first one.
     static func merge(_ urls: [URL], tools: ExternalTools = .current, progress: @escaping @Sendable (Double) -> Void) async throws -> URL {
-        guard urls.count >= 2 else { throw MediaToolError.failed("Choose at least two files to merge.") }
+        guard urls.count >= 2 else { throw MediaToolError.failed(L("Choose at least two files to merge.")) }
         // Any one file AVFoundation can't read sends them all through ffmpeg.
         return try await MediaFallback.run(nil, tools: tools) {
             try await mergeWithAVFoundation(urls, progress: progress)
@@ -172,7 +172,7 @@ extension MediaTools {
     }
 
     private static func mergeWithAVFoundation(_ urls: [URL], progress: @escaping @Sendable (Double) -> Void) async throws -> URL {
-        guard let first = urls.first else { throw MediaToolError.failed("Choose at least two files to merge.") }
+        guard let first = urls.first else { throw MediaToolError.failed(L("Choose at least two files to merge.")) }
         var allVideo = true
         for url in urls where try await AVURLAsset(url: url).loadTracks(withMediaType: .video).isEmpty {
             allVideo = false
@@ -185,7 +185,7 @@ extension MediaTools {
     private static func mergeAudio(_ urls: [URL], nextTo first: URL, progress: @escaping @Sendable (Double) -> Void) async throws -> URL {
         let composition = AVMutableComposition()
         guard let track = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else {
-            throw MediaToolError.cannotExport("as one file")
+            throw MediaToolError.cannotExport(L("as one file"))
         }
         var cursor = CMTime.zero
         for url in urls {
@@ -206,7 +206,7 @@ extension MediaTools {
         let composition = AVMutableComposition()
         guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
               let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
-        else { throw MediaToolError.cannotExport("as one file") }
+        else { throw MediaToolError.cannotExport(L("as one file")) }
 
         let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
         var renderSize: CGSize?

@@ -73,7 +73,7 @@ private struct ShelfHeader: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            HeaderButton(systemImage: "xmark", help: "Close shelf (files are not touched)", action: close)
+            HeaderButton(systemImage: "xmark", help: L("Close shelf (files are not touched)"), action: close)
             Spacer(minLength: 0)
             Text(title)
                 .font(.system(size: 11, weight: .semibold))
@@ -91,7 +91,7 @@ private struct ShelfHeader: View {
             if !shelf.items.isEmpty {
                 HeaderButton(
                     systemImage: shelf.isExpanded ? "chevron.up" : "chevron.down",
-                    help: shelf.isExpanded ? "Collapse" : "Show all files"
+                    help: shelf.isExpanded ? L("Collapse") : "Show all files"
                 ) { withAnimation(.smooth(duration: 0.25)) { shelf.isExpanded.toggle() } }
             }
         }
@@ -103,9 +103,9 @@ private struct ShelfHeader: View {
 
     private var title: String {
         switch shelf.items.count {
-        case 0: "Shelf"
-        case 1: "1 file"
-        case let count: "\(count) files"
+        case 0: L("Shelf")
+        case 1: L("1 file")
+        case let count: LF("%@ files", String(describing: count))
         }
     }
 }

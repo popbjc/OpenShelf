@@ -51,7 +51,7 @@ enum Homebrew {
     /// Throws `HomebrewError` when it fails; whether the tool then works is
     /// for the caller to check by detecting it.
     static func install(_ tool: ExtraTool, using brew: URL, report: @escaping ToolInstallation.Report) async throws {
-        report(InstallProgress(step: .installing, fraction: nil, detail: "Starting Homebrew…", source: .homebrew))
+        report(InstallProgress(step: .installing, fraction: nil, detail: L("Starting Homebrew…"), source: .homebrew))
         let transcript = Transcript()
         let status = try await GroupedProcess.run(brew, arguments(for: tool), environment: environment(for: brew)) { line in
             transcript.append(line)
@@ -94,12 +94,12 @@ enum Homebrew {
         case "Downloading", "Fetching":
             // "Downloading https://ghcr.io/v2/homebrew/core/x265/blobs/sha256:…",
             // "Fetching downloads for: ffmpeg", "Fetching ffmpeg"
-            if words.count == 2, !text.contains("://") { return "Downloading \(words[1])…" }
+            if words.count == 2, !text.contains("://") { return LF("Downloading %@…", String(describing: words[1])) }
             let names = text.split(separator: ":").dropFirst().first?
                 .replacingOccurrences(of: " and ", with: ", ")
                 .split(separator: ",")
                 .map { $0.trimmingCharacters(in: .whitespaces) } ?? []
-            return names.count == 1 && !text.contains("://") ? "Downloading \(names[0])…" : "Downloading…"
+            return names.count == 1 && !text.contains("://") ? LF("Downloading %@…", String(describing: names[0])) : L("Downloading…")
         case "Pouring":
             // "Pouring ffmpeg--8.0_1.arm64_sequoia.bottle.tar.gz"
             let bottle = words.count > 1 ? words[1] : ""
@@ -108,10 +108,10 @@ enum Homebrew {
         case "Installing":
             // "Installing dependencies for ffmpeg: …", "Installing ffmpeg
             // dependency: x265", "Installing Cask libreoffice", "Installing ffmpeg"
-            if words.count > 1, words[1].hasPrefix("dependencies") { return "Installing dependencies…" }
-            if words.count > 3, words[2] == "dependency:" { return "Installing \(words[3])…" }
-            if words.count > 2, words[1] == "Cask" { return "Installing \(words[2])…" }
-            return words.count > 1 ? "Installing \(words[1])…" : "Installing…"
+            if words.count > 1, words[1].hasPrefix("dependencies") { return L("Installing dependencies…") }
+            if words.count > 3, words[2] == "dependency:" { return LF("Installing %@…", String(describing: words[3])) }
+            if words.count > 2, words[1] == "Cask" { return LF("Installing %@…", String(describing: words[2])) }
+            return words.count > 1 ? LF("Installing %@…", String(describing: words[1])) : L("Installing…")
         case "Moving":
             // "Moving App 'LibreOffice.app' to '/Applications/LibreOffice.app'"
             let app = words.first { $0.hasSuffix(".app'") }?.trimmingCharacters(in: CharacterSet(charactersIn: "'"))

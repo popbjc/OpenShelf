@@ -42,7 +42,7 @@ struct EditorFilmstrip: View {
             }
 
             HStack(spacing: 6) {
-                stepButton("chevron.left", label: "Previous", to: selection - 1)
+                stepButton("chevron.left", label: L("Previous"), to: selection - 1)
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(spacing: 6) {
@@ -57,7 +57,7 @@ struct EditorFilmstrip: View {
                         withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(newValue, anchor: .center) }
                     }
                 }
-                stepButton("chevron.right", label: "Next", to: selection + 1)
+                stepButton("chevron.right", label: L("Next"), to: selection + 1)
             }
             .frame(height: 56)
         }
@@ -90,7 +90,7 @@ struct EditorFilmstrip: View {
         .buttonStyle(.plain)
         .help(names[index])
         .accessibilityLabel(names[index])
-        .accessibilityValue(edited[index] ? "Edited" : "")
+        .accessibilityValue(edited[index] ? L("Edited") : "")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 

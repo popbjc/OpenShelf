@@ -15,10 +15,10 @@ enum InstallSource: Equatable, Sendable {
         let name: String
         switch self {
         case .vendor: name = tool.downloadHost
-        case .mirror: name = "OpenShelf’s mirror"
-        case .homebrew: return "Installing with Homebrew"
+        case .mirror: name = L("OpenShelf’s mirror")
+        case .homebrew: return L("Installing with Homebrew")
         }
-        return step == .downloading ? "Downloading from \(name)" : "From \(name)"
+        return step == .downloading ? LF("Downloading from %@", name) : LF("From %@", name)
     }
 }
 
@@ -29,7 +29,7 @@ struct SourcesUnavailableError: LocalizedError, Equatable {
     let detail: String
 
     var errorDescription: String? {
-        "The \(tool.name) download server isn’t responding right now."
+        LF("The %@ download server isn’t responding right now.", String(describing: tool.name))
     }
 }
 

@@ -66,16 +66,16 @@ enum WatchedFolderAction: Hashable, Sendable {
 
     var title: String {
         switch self {
-        case .addOnly: "Just Add to the Shelf"
-        case .convert(let format): "Convert to \(format.title)"
+        case .addOnly: L("Just Add to the Shelf")
+        case .convert(let format): LF("Convert to %@", String(describing: format.title))
         case .tool(let tool):
             switch tool {
-            case .compress: "Compress Image"
-            case .metadata: "Image Metadata"
-            case .compressPDF: "Compress PDF"
-            case .compressVideo: "Compress Video"
-            case .trim: "Trim Video or Audio"
-            case .readQR: "Read QR Code"
+            case .compress: L("Compress Image")
+            case .metadata: L("Image Metadata")
+            case .compressPDF: L("Compress PDF")
+            case .compressVideo: L("Compress Video")
+            case .trim: L("Trim Video or Audio")
+            case .readQR: L("Read QR Code")
             default: tool.title
             }
         }

@@ -9,12 +9,12 @@ enum AnnotationTool: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .draw: "Draw"
-        case .arrow: "Arrow"
-        case .box: "Box"
-        case .highlight: "Highlight"
-        case .text: "Text"
-        case .callout: "Callout"
+        case .draw: L("Draw")
+        case .arrow: L("Arrow")
+        case .box: L("Box")
+        case .highlight: L("Highlight")
+        case .text: L("Text")
+        case .callout: L("Callout")
         }
     }
 
@@ -31,12 +31,12 @@ enum AnnotationTool: CaseIterable, Identifiable {
 
     var hint: String {
         switch self {
-        case .draw: "Drag on the image to draw."
-        case .arrow: "Drag from the tail toward the arrowhead."
-        case .box: "Drag to draw a box."
-        case .highlight: "Drag over the image to highlight."
-        case .text: "Click where the text should go."
-        case .callout: "Click to add numbered callouts."
+        case .draw: L("Drag on the image to draw.")
+        case .arrow: L("Drag from the tail toward the arrowhead.")
+        case .box: L("Drag to draw a box.")
+        case .highlight: L("Drag over the image to highlight.")
+        case .text: L("Click where the text should go.")
+        case .callout: L("Click to add numbered callouts.")
         }
     }
 }
@@ -304,7 +304,7 @@ struct AnnotateEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Annotate",
+            title: L("Annotate"),
             primaryTitle: primaryTitle,
             isPrimaryEnabled: textDraft == nil && !isWorking && editedCount > 0,
             // While typing, Esc finishes the text instead of closing the editor.
@@ -354,7 +354,7 @@ struct AnnotateEditor: View {
                         .foregroundStyle(.secondary)
                 }
 
-                EditorRow(label: "Color") {
+                EditorRow(label: L("Color")) {
                     HStack(spacing: 8) {
                         ForEach(Array(Self.presetColors.enumerated()), id: \.offset) { _, preset in
                             ColorSwatch(color: preset, isSelected: preset == color) { color = preset }
@@ -367,11 +367,11 @@ struct AnnotateEditor: View {
 
                 // One control sizes lines and text; name it for what it changes now.
                 if tool == .text {
-                    EditorSlider(label: "Size", value: $lineWidth, range: 2...24) {
+                    EditorSlider(label: L("Size"), value: $lineWidth, range: 2...24) {
                         Double(AnnotationRenderer.fontSize(forLineWidth: CGFloat($0)))
                     }
                 } else {
-                    EditorSlider(label: "Width", value: $lineWidth, range: 2...24)
+                    EditorSlider(label: L("Width"), value: $lineWidth, range: 2...24)
                 }
             }
             .background {
@@ -386,11 +386,11 @@ struct AnnotateEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Save" }
+        guard isBatch else { return L("Save") }
         switch editedCount {
-        case 0: return "Save Images"
-        case 1: return "Save 1 Image"
-        default: return "Save \(editedCount) Images"
+        case 0: return L("Save Images")
+        case 1: return L("Save 1 Image")
+        default: return LF("Save %@ Images", String(describing: editedCount))
         }
     }
 
@@ -702,7 +702,7 @@ enum ImageAnnotator {
     /// Draws on and saves each image; images without marks are left alone and
     /// counted.
     static func run(_ jobs: [(EditableImage, [Annotation])]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "annotated", unchangedLabel: "not annotated")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("annotated"), unchangedLabel: L("not annotated"))
         for (image, annotations) in jobs {
             guard !annotations.isEmpty else {
                 outcome.unchanged += 1

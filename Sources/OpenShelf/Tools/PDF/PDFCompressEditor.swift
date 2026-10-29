@@ -31,8 +31,8 @@ struct PDFCompressEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Compress PDF",
-            primaryTitle: isWorking ? "Compressing…" : "Compress",
+            title: L("Compress PDF"),
+            primaryTitle: isWorking ? L("Compressing…") : L("Compress"),
             isPrimaryEnabled: !isWorking && !isKnownNotSmaller,
             actions: actions,
             onReset: { level = .balanced },
@@ -41,7 +41,7 @@ struct PDFCompressEditor: View {
             VStack(alignment: .leading, spacing: 14) {
                 PDFFileHeader(
                     url: urls[0],
-                    detail: urls.count == 1 ? PDFTools.formatted(totalOriginal) : "\(PDFTools.formatted(totalOriginal)) in total",
+                    detail: urls.count == 1 ? PDFTools.formatted(totalOriginal) : LF("%@ in total", String(describing: PDFTools.formatted(totalOriginal))),
                     count: urls.count
                 )
 
@@ -74,9 +74,9 @@ struct PDFCompressEditor: View {
             Label {
                 if let estimate {
                     let saving = totalOriginal > 0 ? 100 - Int(Double(estimate) / Double(totalOriginal) * 100) : 0
-                    Text(urls.count == 1 ? "≈ \(PDFTools.formatted(estimate))" : "≈ \(PDFTools.formatted(estimate)) for \(urls.count) PDFs")
+                    Text(urls.count == 1 ? LF("≈ %@", String(describing: PDFTools.formatted(estimate))) : "≈ \(PDFTools.formatted(estimate)) for \(urls.count) PDFs")
                         .font(.system(size: 12, weight: .semibold))
-                    + Text(saving > 0 ? "  (\(saving)% smaller)" : "  (no smaller — nothing left to squeeze)")
+                    + Text(saving > 0 ? LF("  (%@% smaller)", String(describing: saving)) : L("  (no smaller — nothing left to squeeze)"))
                         .font(.system(size: 12))
                         .foregroundStyle(saving > 0 ? Color.secondary : Color.orange)
                 } else if estimateFailed {

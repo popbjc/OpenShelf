@@ -20,7 +20,7 @@ enum ArchiveConversion {
     /// One file or folder becomes "<name>.zip"; several become "Archive.zip"
     /// next to the first.
     static func zip(_ sources: [URL]) async throws -> URL {
-        guard let first = sources.first else { throw ConversionError.failed("Nothing to compress.") }
+        guard let first = sources.first else { throw ConversionError.failed(L("Nothing to compress.")) }
         let baseName = sources.count == 1 ? first.lastPathComponent : "Archive"
         let destination = OutputNaming.uniqueURL(in: first.deletingLastPathComponent(), baseName: baseName, pathExtension: "zip")
         do {
@@ -59,7 +59,7 @@ enum ArchiveConversion {
             // Items from different folders all go in at the top, where a second
             // one with the same name would replace the first.
             guard names.insert(name).inserted else {
-                throw ConversionError.failed("Two of the items are named “\(name)”, so they can’t go in one archive. Rename one and try again.")
+                throw ConversionError.failed(LF("Two of the items are named “%@”, so they can’t go in one archive. Rename one and try again.", String(describing: name)))
             }
             let directory = source.deletingLastPathComponent()
             var paths = [name]
@@ -90,7 +90,7 @@ enum ArchiveConversion {
     /// A tar archive (gzip-compressed when `gzip` is true) of one file or folder
     /// ("<name>.tar.gz"), or of several ("Archive.tar.gz" next to the first).
     static func tar(_ sources: [URL], gzip: Bool) async throws -> URL {
-        guard let first = sources.first else { throw ConversionError.failed("Nothing to archive.") }
+        guard let first = sources.first else { throw ConversionError.failed(L("Nothing to archive.")) }
         let directory = first.deletingLastPathComponent()
         let pathExtension = gzip ? "tar.gz" : "tar"
         let baseName = sources.count == 1 ? first.lastPathComponent : "Archive"

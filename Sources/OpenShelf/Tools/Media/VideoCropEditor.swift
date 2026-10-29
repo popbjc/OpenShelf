@@ -75,7 +75,7 @@ struct VideoCropEditor: View {
                     }
                 }
 
-                EditorRow(label: "Aspect ratio") {
+                EditorRow(label: L("Aspect ratio")) {
                     Picker("Aspect ratio", selection: model.ratioBinding) {
                         ForEach(CropRatio.allCases) { Text($0.title).tag($0) }
                     }
@@ -83,7 +83,7 @@ struct VideoCropEditor: View {
                     .labelsHidden()
                 }
 
-                EditorRow(label: "Size") {
+                EditorRow(label: L("Size")) {
                     HStack(spacing: 6) {
                         Text("W").foregroundStyle(.secondary)
                         TextField("Width", value: model.dimensionBinding(\.width), format: .number.grouping(.never))
@@ -118,7 +118,7 @@ struct VideoCropEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Apply" }
+        guard isBatch else { return L("Apply") }
         switch editedCount {
         case 0: return "Crop Videos"
         case 1: return "Crop 1 Video"
@@ -166,7 +166,7 @@ struct VideoCropEditor: View {
             return
         }
         let jobs = models.filter(\.isEdited).map { ($0.url, $0.crop) }
-        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: "cropped", unchangedLabel: "not cropped")
+        let outcome = SaveOutcome(saved: [], unchanged: models.count - jobs.count, savedLabel: L("cropped"), unchangedLabel: L("not cropped"))
         batch.start(jobs.count, outcome: outcome, actions: actions) { index, progress in
             [try await MediaTools.crop(jobs[index].0, to: jobs[index].1, progress: progress)]
         }
@@ -260,7 +260,7 @@ final class VideoCropModel {
         } catch {
             // Moving to another video cancels this; it loads again when shown.
             guard !Task.isCancelled else { return }
-            loadError = MediaLoading.loadError(error, otherwise: "This video can’t be read.")
+            loadError = MediaLoading.loadError(error, otherwise: L("This video can’t be read."))
         }
     }
 
@@ -275,7 +275,7 @@ final class VideoCropModel {
                     crop = bounds
                     isSized = true
                 } catch {
-                    loadError = MediaLoading.loadError(error, otherwise: "This video can’t be read.")
+                    loadError = MediaLoading.loadError(error, otherwise: L("This video can’t be read."))
                 }
             }
         }

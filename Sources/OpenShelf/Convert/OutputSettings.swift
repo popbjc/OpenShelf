@@ -22,7 +22,7 @@ struct OutputSettings: Codable, Equatable, Sendable {
 
             var title: String {
                 switch self {
-                case .automatic: "Automatic"
+                case .automatic: L("Automatic")
                 case .h264: "H.264"
                 case .hevc: "HEVC (H.265)"
                 }
@@ -37,11 +37,11 @@ struct OutputSettings: Codable, Equatable, Sendable {
 
             var title: String {
                 switch self {
-                case .automatic: "Automatic"
-                case .best: "Best"
-                case .balanced: "Balanced"
-                case .smaller: "Smaller"
-                case .custom: "Custom"
+                case .automatic: L("Automatic")
+                case .best: L("Best")
+                case .balanced: L("Balanced")
+                case .smaller: L("Smaller")
+                case .custom: L("Custom")
                 }
             }
 
@@ -78,7 +78,7 @@ struct OutputSettings: Codable, Equatable, Sendable {
 
             var title: String {
                 switch self {
-                case .original: "Original"
+                case .original: L("Original")
                 case .uhd4K: "4K"
                 case .p1080: "1080p"
                 case .p720: "720p"
@@ -201,7 +201,7 @@ struct OutputSettings: Codable, Equatable, Sendable {
                 case .w480: "480 px"
                 case .w720: "720 px"
                 case .w1080: "1080 px"
-                case .original: "Original (up to 1920 px)"
+                case .original: L("Original (up to 1920 px)")
                 }
             }
 

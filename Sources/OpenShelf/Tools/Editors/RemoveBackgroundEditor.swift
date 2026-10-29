@@ -49,7 +49,7 @@ enum BackgroundRemover {
     /// Cuts out and saves each image; images with no clear subject are left
     /// alone and counted.
     static func run(_ images: [EditableImage]) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "saved", unchangedLabel: "without a subject")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("saved"), unchangedLabel: L("without a subject"))
         for image in images {
             // Each cutout is a full-size copy; let it go before the next.
             try autoreleasepool {
@@ -135,7 +135,7 @@ struct RemoveBackgroundEditor: View {
                             .interpolation(.high)
                             .scaledToFit()
                             .padding(8)
-                            .accessibilityLabel(showsOriginal ? "Original image" : "Image without background")
+                            .accessibilityLabel(showsOriginal ? L("Original image") : L("Image without background"))
                     } else {
                         VStack(spacing: 10) {
                             ProgressView()
@@ -167,7 +167,7 @@ struct RemoveBackgroundEditor: View {
                 .frame(width: 220)
                 .disabled(result == nil)
 
-                Text(result == nil ? " " : "Saved as a PNG with a transparent background.")
+                Text(result == nil ? " " : L("Saved as a PNG with a transparent background."))
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
@@ -177,12 +177,12 @@ struct RemoveBackgroundEditor: View {
     }
 
     private var primaryTitle: String {
-        guard isBatch else { return "Save" }
-        if isSaving { return "Saving…" }
+        guard isBatch else { return L("Save") }
+        if isSaving { return L("Saving…") }
         switch editedCount {
-        case 0: return "Save Images"
-        case 1: return "Save 1 Image"
-        default: return "Save \(editedCount) Images"
+        case 0: return L("Save Images")
+        case 1: return L("Save 1 Image")
+        default: return LF("Save %@ Images", String(describing: editedCount))
         }
     }
 

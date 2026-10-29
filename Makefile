@@ -38,6 +38,7 @@ define bundle_app
 	cp "$(BUILD_DIR)/$(APP_NAME)" "$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)"
 	cp Support/Info.plist "$(APP_BUNDLE)/Contents/Info.plist"
 	cp Support/AppIcon.icns "$(APP_BUNDLE)/Contents/Resources/AppIcon.icns"
+	cp -R Sources/OpenShelf/Resources/en.lproj Sources/OpenShelf/Resources/zh-Hans.lproj "$(APP_BUNDLE)/Contents/Resources/"
 	ditto "$(SPARKLE_FRAMEWORK)" "$(APP_BUNDLE)/Contents/Frameworks/Sparkle.framework"
 	SDK="$(SDK)" DEPENDENCY_INFO="$(DEPENDENCY_INFO)" EXTRA_SWIFTC_FLAGS="-F $(SPARKLE_DIR)" sh scripts/appintents-metadata.sh "$(APP_BUNDLE)" "$(BUILD_DIR)/appintents" $(SOURCES)
 	codesign --force --deep --sign - "$(APP_BUNDLE)"

@@ -47,7 +47,7 @@ enum MetadataReader {
             ("35 mm Equivalent", number(take(kCGImagePropertyExifFocalLenIn35mmFilm, from: exif, named: kCGImagePropertyExifDictionary)).map { "\(trimmed($0)) mm" }),
             ("Exposure Bias", number(take(kCGImagePropertyExifExposureBiasValue, from: exif, named: kCGImagePropertyExifDictionary)).map { "\($0 > 0 ? "+" : "")\(trimmed($0)) EV" }),
             ("Flash", number(take(kCGImagePropertyExifFlash, from: exif, named: kCGImagePropertyExifDictionary)).map { Int($0) & 1 == 1 ? "Fired" : "Did not fire" }),
-            ("White Balance", number(take(kCGImagePropertyExifWhiteBalance, from: exif, named: kCGImagePropertyExifDictionary)).map { $0 == 0 ? "Auto" : "Manual" }),
+            ("White Balance", number(take(kCGImagePropertyExifWhiteBalance, from: exif, named: kCGImagePropertyExifDictionary)).map { $0 == 0 ? L("Auto") : "Manual" }),
         ])
 
         let dates = fields([
@@ -71,7 +71,7 @@ enum MetadataReader {
             imageFields.append(("Dimensions", "\(text(width) ?? "?") × \(text(height) ?? "?")"))
         }
         imageFields += [
-            ("Resolution", number(properties[kCGImagePropertyDPIWidth]).map { "\(trimmed($0)) dpi" }),
+            (L("Resolution"), number(properties[kCGImagePropertyDPIWidth]).map { "\(trimmed($0)) dpi" }),
             ("Colour Model", text(properties[kCGImagePropertyColorModel])),
             ("Colour Profile", text(properties[kCGImagePropertyProfileName])),
             ("Bit Depth", text(properties[kCGImagePropertyDepth])),
@@ -209,10 +209,10 @@ enum MetadataReader {
 /// How the Metadata tools name their copies, for images and PDFs alike.
 enum MetadataSuffix {
     /// A copy with the metadata removed: "Photo Clean.jpg", "Report Clean.pdf".
-    static let removed = "Clean"
+    static let removed = L("Clean")
     /// A PDF with edited document info: "Report Metadata.pdf". Distinct from the
     /// Pages editor's "Edited" so the two copies can't be confused.
-    static let edited = "Metadata"
+    static let edited = L("Metadata")
 }
 
 /// Writes copies of images without their metadata.
@@ -257,7 +257,7 @@ enum MetadataStripper {
     /// Saves clean copies of the images that have identifying metadata; the
     /// rest are left alone and counted, since a copy would be identical.
     static func run(_ images: [EditableImage], keepsOrientationAndProfile: Bool) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "cleaned", unchangedLabel: "already clean")
+        var outcome = SaveOutcome(saved: [], savedLabel: L("cleaned"), unchangedLabel: L("already clean"))
         for image in images {
             guard hasIdentifyingMetadata(at: image.url) else {
                 outcome.unchanged += 1
@@ -406,7 +406,7 @@ struct MetadataEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Metadata",
+            title: L("Metadata"),
             primaryTitle: isWorking ? "Removing…" : "Remove Metadata",
             isPrimaryEnabled: !isWorking && identifiableCount > 0,
             actions: actions,
@@ -476,7 +476,7 @@ private struct SingleImageMetadata: View {
                     }
                 }
                 Spacer(minLength: 0)
-                Button(didCopy ? "Copied" : "Copy All") {
+                Button(didCopy ? "Copied" : L("Copy All")) {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(
                         MetadataReader.plainText(sections, fileName: image.url.lastPathComponent),
@@ -568,7 +568,7 @@ private struct BatchMetadataSummary: View {
                                 .truncationMode(.middle)
                             Spacer(minLength: 0)
                             if MetadataReader.hasCameraInfo(image.properties) {
-                                Chip(title: "Camera", systemImage: "camera", tint: .secondary)
+                                Chip(title: L("Camera"), systemImage: "camera", tint: .secondary)
                             }
                             if MetadataReader.hasLocation(image.properties) {
                                 LocationChip()

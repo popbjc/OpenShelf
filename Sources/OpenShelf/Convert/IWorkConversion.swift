@@ -261,7 +261,7 @@ enum IWorkConversion {
                     "“\(source.lastPathComponent)” has no preview inside to convert. Install LibreOffice in Settings → Extra Formats to convert \(iWork.appName) files."
                 )
             }
-            throw ConversionError.unsupported("\(iWork.appName) to \(format.title)")
+            throw ConversionError.unsupported(LF("%@ to %@", String(describing: iWork.appName), String(describing: format.title)))
         }
         return try convert(source, from: iWork, preview: preview, to: format, settings: settings, progress: progress)
     }
@@ -277,7 +277,7 @@ enum IWorkConversion {
         progress: @escaping @Sendable (Double) -> Void
     ) throws -> [URL] {
         guard let data = preview.data(in: source), !data.isEmpty else {
-            throw ConversionError.failed("The preview inside “\(source.lastPathComponent)” couldn’t be read.")
+            throw ConversionError.failed(LF("The preview inside “%@” couldn’t be read.", String(describing: source.lastPathComponent)))
         }
         let workspace = try PackageZip.makeWorkspace("iwork")
         defer { try? FileManager.default.removeItem(at: workspace) }
@@ -297,7 +297,7 @@ enum IWorkConversion {
             )
         }
         guard let pathExtension = format.fileExtension, let type = format.imageIOType else {
-            throw ConversionError.unsupported("\(iWork.appName) to \(format.title)")
+            throw ConversionError.unsupported(LF("%@ to %@", String(describing: iWork.appName), String(describing: format.title)))
         }
         let destination = OutputNaming.destination(for: source, pathExtension: pathExtension)
         if format == .jpg {
@@ -315,7 +315,7 @@ struct AutomationNotAllowed: LocalizedError, Equatable {
     let appName: String
 
     var errorDescription: String? {
-        "Allow OpenShelf to control \(appName) in System Settings → Privacy & Security → Automation, then try again."
+        LF("Allow OpenShelf to control %@ in System Settings → Privacy & Security → Automation, then try again.", String(describing: appName))
     }
 }
 
@@ -336,7 +336,7 @@ enum IWorkExport {
                 group.addTask { try await ProcessRunner.run(osascript, arguments(source: source, destination: destination, app: iWork)) }
                 group.addTask {
                     try await Task.sleep(for: timeout)
-                    throw ConversionError.failed("\(iWork.appName) took too long to save “\(source.lastPathComponent)”.")
+                    throw ConversionError.failed(LF("%@ took too long to save “%@”.", String(describing: iWork.appName), String(describing: source.lastPathComponent)))
                 }
                 defer { group.cancelAll() }
                 try await group.next()
@@ -349,7 +349,7 @@ enum IWorkExport {
             throw error
         }
         guard FileManager.default.fileExists(atPath: destination.path) else {
-            throw ConversionError.failed("\(iWork.appName) couldn’t save “\(source.lastPathComponent)”.")
+            throw ConversionError.failed(LF("%@ couldn’t save “%@”.", String(describing: iWork.appName), String(describing: source.lastPathComponent)))
         }
         return destination
     }
@@ -399,8 +399,8 @@ enum IWorkExport {
         }
         // -10814: no app with that bundle identifier; -600: it quit or never launched.
         if text.contains("(-10814)") || text.contains("(-600)") {
-            return ConversionError.failed("\(app.appName) isn’t installed any more.")
+            return ConversionError.failed(LF("%@ isn’t installed any more.", String(describing: app.appName)))
         }
-        return ConversionError.failed("\(app.appName) couldn’t save “\(source.lastPathComponent)”: \(FailureMessage.sanitized(text))")
+        return ConversionError.failed(LF("%@ couldn’t save “%@”: %@", String(describing: app.appName), String(describing: source.lastPathComponent), String(describing: FailureMessage.sanitized(text))))
     }
 }

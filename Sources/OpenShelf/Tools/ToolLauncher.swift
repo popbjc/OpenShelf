@@ -24,7 +24,7 @@ enum ToolLauncher {
                         return
                     }
                     FileActions.copyText(codes.joined(separator: "\n"))
-                    let title = codes.count == 1 ? "Copied QR code" : "Copied \(codes.count) QR codes"
+                    let title = codes.count == 1 ? L("Copied QR code") : LF("Copied %@ QR codes", String(describing: codes.count))
                     ToastController.shared.show(Toast(systemImage: "qrcode", title: title, subtitle: codes[0]), near: location, for: .seconds(3))
                 } catch {
                     ToastController.shared.show(Toast(systemImage: "exclamationmark.triangle", title: "Couldn’t read QR code", subtitle: error.localizedDescription), near: location)

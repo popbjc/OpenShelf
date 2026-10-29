@@ -17,8 +17,8 @@ struct MediaSpeedEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Speed",
-            primaryTitle: "Save",
+            title: L("Speed"),
+            primaryTitle: L("Save"),
             isPrimaryEnabled: model.exportProgress == nil && abs(model.rate - 1) > 0.001,
             actions: actions,
             onReset: { model.rate = 2; model.keepsPitch = true },
@@ -64,7 +64,7 @@ struct MediaSpeedEditor: View {
                     }
                 }
 
-                EditorRow(label: "Speed") {
+                EditorRow(label: L("Speed")) {
                     Slider(value: $model.rate, in: 0.25...4, step: 0.05)
                         .controlSize(.small)
                     Text(MediaTools.speedSuffix(model.rate).replacingOccurrences(of: "x", with: "×"))
@@ -104,7 +104,7 @@ final class SpeedModel {
     }
 
     var title: String {
-        urls.count == 1 ? urls[0].lastPathComponent : "\(urls.count) files"
+        urls.count == 1 ? urls[0].lastPathComponent : LF("%@ files", String(describing: urls.count))
     }
 
     var durationSummary: String {
@@ -135,7 +135,7 @@ final class SpeedModel {
             var outputs: [URL] = []
             do {
                 for (index, url) in urls.enumerated() {
-                    self?.progressDetail = urls.count > 1 ? "Exporting \(index + 1) of \(urls.count)…" : nil
+                    self?.progressDetail = urls.count > 1 ? LF("Exporting %@ of %@…", String(describing: index + 1), String(describing: urls.count)) : nil
                     let output = try await MediaTools.changeSpeed(url, rate: rate, keepsPitch: keepsPitch) { fraction in
                         Task { @MainActor in self?.exportProgress = (Double(index) + fraction) / Double(urls.count) }
                     }

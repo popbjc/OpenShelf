@@ -163,7 +163,7 @@ enum ToolInstallation {
         into locations: InstallLocations,
         report: @escaping Report
     ) async throws -> [String] {
-        report(InstallProgress(step: .verifying, fraction: nil, detail: "Checking the download…"))
+        report(InstallProgress(step: .verifying, fraction: nil, detail: L("Checking the download…")))
         var binaries: [(name: String, file: URL)] = []
         for zip in zips {
             // The signature below is what proves who built it; the checksum,
@@ -175,14 +175,14 @@ enum ToolInstallation {
             try await ProcessRunner.run(ditto, ["-x", "-k", zip.file.path, folder.path])
             let binary = folder.appendingPathComponent(zip.name)
             guard FileManager.default.fileExists(atPath: binary.path) else {
-                throw ConversionError.failed("The download didn’t contain \(zip.name).")
+                throw ConversionError.failed(LF("The download didn’t contain %@.", String(describing: zip.name)))
             }
             try ToolIntegrity.verifySignature(of: binary, identifier: zip.name, teamID: FFmpegSource.teamID, name: zip.name)
             try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: binary.path)
             binaries.append((zip.name, binary))
         }
 
-        report(InstallProgress(step: .installing, fraction: nil, detail: "Installing…"))
+        report(InstallProgress(step: .installing, fraction: nil, detail: L("Installing…")))
         var paths: [String] = []
         for (name, binary) in binaries {
             let destination = locations.tools.appendingPathComponent(name)
@@ -206,7 +206,7 @@ enum ToolInstallation {
                 return (version, diskImage, sha256)
             }
         }
-        throw ConversionError.failed("No LibreOffice download for this Mac was found. Try again later.")
+        throw ConversionError.failed(L("No LibreOffice download for this Mac was found. Try again later."))
     }
 
     /// Downloads the LibreOffice disk image, checks it, and copies the app
@@ -215,7 +215,7 @@ enum ToolInstallation {
         into locations: InstallLocations,
         report: @escaping Report
     ) async throws -> InstalledTools.Entry {
-        report(InstallProgress(step: .downloading, fraction: nil, detail: "Finding the latest version…"))
+        report(InstallProgress(step: .downloading, fraction: nil, detail: L("Finding the latest version…")))
         let release = try await latestLibreOffice()
         return try await installLibreOffice(from: release.diskImage, sha256: release.sha256, version: release.version, into: locations, report: report)
     }
@@ -229,18 +229,18 @@ enum ToolInstallation {
     ) async throws -> InstalledTools.Entry {
         let destination = locations.applications.appendingPathComponent("LibreOffice.app")
         guard !FileManager.default.fileExists(atPath: destination.path) else {
-            throw ConversionError.failed("There’s already a LibreOffice in \(locations.applications.lastPathComponent).")
+            throw ConversionError.failed(LF("There’s already a LibreOffice in %@.", String(describing: locations.applications.lastPathComponent)))
         }
         let staging = try makeStagingFolder(in: locations.tools)
         defer { try? FileManager.default.removeItem(at: staging) }
 
         let diskImage = staging.appendingPathComponent("LibreOffice.dmg")
         try await download(diskImageURL, to: diskImage, label: "LibreOffice", part: 0, of: 1, report: report)
-        report(InstallProgress(step: .verifying, fraction: nil, detail: "Checking the download…"))
+        report(InstallProgress(step: .verifying, fraction: nil, detail: L("Checking the download…")))
         // Disk images are only opened once they match the published checksum.
         try ToolIntegrity.verify(diskImage, sha256: sha256, name: "LibreOffice")
 
-        report(InstallProgress(step: .installing, fraction: nil, detail: "Copying LibreOffice…"))
+        report(InstallProgress(step: .installing, fraction: nil, detail: L("Copying LibreOffice…")))
         let appStaging = try makeStagingFolder(in: locations.applications)
         defer { try? FileManager.default.removeItem(at: appStaging) }
         let mountPoint = staging.appendingPathComponent("Volume", isDirectory: true)
@@ -254,7 +254,7 @@ enum ToolInstallation {
         }
         await detach(mountPoint)
 
-        report(InstallProgress(step: .verifying, fraction: nil, detail: "Checking the signature…"))
+        report(InstallProgress(step: .verifying, fraction: nil, detail: L("Checking the signature…")))
         try await Task.detached(priority: .userInitiated) {
             try ToolIntegrity.verifySignature(
                 of: stagedApp,
@@ -278,7 +278,7 @@ enum ToolInstallation {
         into locations: InstallLocations,
         report: @escaping Report
     ) async throws -> InstalledTools.Entry {
-        report(InstallProgress(step: .downloading, fraction: nil, detail: "Finding the latest version…"))
+        report(InstallProgress(step: .downloading, fraction: nil, detail: L("Finding the latest version…")))
         let listing: String?
         if release.isFileURL {
             listing = try? String(contentsOf: release, encoding: .utf8)
@@ -286,7 +286,7 @@ enum ToolInstallation {
             listing = try await FileDownload.text(at: release)
         }
         guard let listing, let found = PandocSource.download(inRelease: Data(listing.utf8), for: architecture) else {
-            throw ConversionError.failed("No Pandoc download for this Mac was found. Try again later.")
+            throw ConversionError.failed(L("No Pandoc download for this Mac was found. Try again later."))
         }
         // GitHub lists a digest for every release file; without one, nothing is installed.
         guard let sha256 = found.sha256 else { throw ToolIntegrityError.checksumMissing(file: "Pandoc") }
@@ -301,7 +301,7 @@ enum ToolInstallation {
             throw DownloadError.untrustedLocation(resolved.host ?? resolved.absoluteString)
         }
 
-        report(InstallProgress(step: .verifying, fraction: nil, detail: "Checking the download…"))
+        report(InstallProgress(step: .verifying, fraction: nil, detail: L("Checking the download…")))
         try ToolIntegrity.verify(zip, sha256: sha256, name: "Pandoc")
         let folder = staging.appendingPathComponent("pandoc", isDirectory: true)
         try await ProcessRunner.run(ditto, ["-x", "-k", zip.path, folder.path])
@@ -309,12 +309,12 @@ enum ToolInstallation {
         let binary = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil))?
             .map { $0.appendingPathComponent("bin/pandoc") }
             .first { FileManager.default.fileExists(atPath: $0.path) }
-        guard let binary else { throw ConversionError.failed("The download didn’t contain Pandoc.") }
-        report(InstallProgress(step: .verifying, fraction: nil, detail: "Checking the signature…"))
+        guard let binary else { throw ConversionError.failed(L("The download didn’t contain Pandoc.")) }
+        report(InstallProgress(step: .verifying, fraction: nil, detail: L("Checking the signature…")))
         try ToolIntegrity.verifySignature(of: binary, identifier: "pandoc", teamID: PandocSource.teamID, name: "Pandoc")
         try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: binary.path)
 
-        report(InstallProgress(step: .installing, fraction: nil, detail: "Installing…"))
+        report(InstallProgress(step: .installing, fraction: nil, detail: L("Installing…")))
         let destination = locations.tools.appendingPathComponent("pandoc")
         try moveIntoPlace(binary, at: destination)
         return InstalledTools.Entry(version: found.version, paths: [destination.path], source: found.url.absoluteString)
@@ -359,15 +359,15 @@ enum ToolInstallation {
     /// Downloads one of `parts` files, reporting overall progress.
     @discardableResult
     private static func download(_ url: URL, to destination: URL, label: String, part: Int, of parts: Int, report: @escaping Report) async throws -> URL {
-        report(InstallProgress(step: .downloading, fraction: Double(part) / Double(parts), detail: "Downloading \(label)…"))
+        report(InstallProgress(step: .downloading, fraction: Double(part) / Double(parts), detail: LF("Downloading %@…", String(describing: label))))
         return try await FileDownload.download(url, to: destination) { received, expected in
             guard let expected else {
-                report(InstallProgress(step: .downloading, fraction: nil, detail: "Downloading \(label)… \(megabytes(received))"))
+                report(InstallProgress(step: .downloading, fraction: nil, detail: LF("Downloading %@… %@", String(describing: label), String(describing: megabytes(received)))))
                 return
             }
             let share: Double = Double(received) / Double(max(expected, 1))
             let fraction: Double = (Double(part) + share) / Double(parts)
-            report(InstallProgress(step: .downloading, fraction: fraction, detail: "\(megabytes(received)) of \(megabytes(expected))"))
+            report(InstallProgress(step: .downloading, fraction: fraction, detail: LF("%@ of %@", String(describing: megabytes(received)), String(describing: megabytes(expected)))))
         }
     }
 

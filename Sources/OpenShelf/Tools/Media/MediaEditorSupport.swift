@@ -89,13 +89,13 @@ struct MediaExportProgress: View {
             ProgressView(value: min(max(progress, 0), 1))
                 .progressViewStyle(.linear)
                 .tint(.accentColor)
-            Text(detail ?? "Exporting… \(Int(progress * 100))%")
+            Text(detail ?? LF("Exporting… %@%", String(describing: Int(progress * 100))))
                 .font(.system(size: 11).monospacedDigit())
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Export progress")
-        .accessibilityValue("\(Int(progress * 100)) percent")
+        .accessibilityValue(LF("%@ percent", String(describing: Int(progress * 100))))
     }
 }
 

@@ -82,9 +82,9 @@ extension WheelKind {
     /// The wheel's name on its own, for the label above the wheel.
     var shortTitle: String {
         switch self {
-        case .convert: "Convert"
-        case .tools: "Tools"
-        case .actions: "Actions"
+        case .convert: L("Convert")
+        case .tools: L("Tools")
+        case .actions: L("Actions")
         }
     }
 }

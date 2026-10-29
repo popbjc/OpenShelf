@@ -9,8 +9,8 @@ enum EditableImageError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unreadable(let url): "“\(url.lastPathComponent)” couldn’t be opened as an image."
-        case .unwritable(let url): "“\(url.lastPathComponent)” couldn’t be saved."
+        case .unreadable(let url): LF("“%@” couldn’t be opened as an image.", String(describing: url.lastPathComponent))
+        case .unwritable(let url): LF("“%@” couldn’t be saved.", String(describing: url.lastPathComponent))
         }
     }
 }

@@ -81,7 +81,7 @@ final class ToolInstaller {
     func install(_ tool: ExtraTool) {
         let locations = locations
         let sources = InstallFallback.automaticSources(for: tool)
-        let first = InstallProgress(step: .downloading, fraction: 0, detail: "Starting…", source: sources.first)
+        let first = InstallProgress(step: .downloading, fraction: 0, detail: L("Starting…"), source: sources.first)
         start(tool, from: .vendor, showing: first) { report in
             try await InstallFallback.install(tool, from: sources) { source in
                 let sourced: ToolInstallation.Report = { update in
@@ -90,7 +90,7 @@ final class ToolInstaller {
                     report(update)
                 }
                 if source == .mirror {
-                    sourced(InstallProgress(step: .downloading, fraction: 0, detail: "\(tool.downloadHost) isn’t responding. Trying the mirror…"))
+                    sourced(InstallProgress(step: .downloading, fraction: 0, detail: LF("%@ isn’t responding. Trying the mirror…", String(describing: tool.downloadHost))))
                 }
                 return try await Self.download(tool, from: source, into: locations, report: sourced)
             }
@@ -103,7 +103,7 @@ final class ToolInstaller {
             refresh()
             return
         }
-        let first = InstallProgress(step: .installing, fraction: nil, detail: "Starting Homebrew…", source: .homebrew)
+        let first = InstallProgress(step: .installing, fraction: nil, detail: L("Starting Homebrew…"), source: .homebrew)
         start(tool, from: .homebrew, showing: first) { report in
             try await Homebrew.install(tool, using: brew, report: report)
             // Homebrew keeps track of its own copies.
@@ -123,7 +123,7 @@ final class ToolInstaller {
             try installed.save(to: locations.record)
             failures[tool] = nil
         } catch {
-            failures[tool] = InstallFailure(message: "Couldn’t remove \(tool.name): \(error.localizedDescription)", kind: .other)
+            failures[tool] = InstallFailure(message: LF("Couldn’t remove %@: %@", String(describing: tool.name), String(describing: error.localizedDescription)), kind: .other)
         }
         refresh()
     }
@@ -174,7 +174,7 @@ final class ToolInstaller {
         case (.pandoc, .vendor):
             try await ToolInstallation.installPandoc(into: locations, report: report)
         case (.libreOffice, .mirror), (.pandoc, .mirror), (_, .homebrew):
-            throw ConversionError.failed("\(tool.name) can’t be downloaded from there.")
+            throw ConversionError.failed(LF("%@ can’t be downloaded from there.", String(describing: tool.name)))
         }
     }
 
@@ -193,13 +193,13 @@ final class ToolInstaller {
             guard tool.isInstalled(in: tools) else {
                 let isHidden = ExternalTools.ignoredTools.contains(tool.rawValue.lowercased())
                 let message = isHidden
-                    ? "Homebrew installed \(tool.name), but the IgnoredExternalTools setting hides Homebrew’s copy."
-                    : "Homebrew finished, but OpenShelf can’t find \(tool.name)."
+                    ? LF("Homebrew installed %@, but the IgnoredExternalTools setting hides Homebrew’s copy.", String(describing: tool.name))
+                    : LF("Homebrew finished, but OpenShelf can’t find %@.", String(describing: tool.name))
                 fail(tool, InstallFailure(message: message, kind: .homebrew))
                 return
             }
             ToastController.shared.show(
-                Toast(systemImage: "checkmark", title: "\(tool.name) installed", subtitle: tool.installedConfirmation),
+                Toast(systemImage: "checkmark", title: LF("%@ installed", String(describing: tool.name)), subtitle: tool.installedConfirmation),
                 for: .seconds(4)
             )
         case .failure(let error) where error is CancellationError:
@@ -212,7 +212,7 @@ final class ToolInstaller {
     private func fail(_ tool: ExtraTool, _ failure: InstallFailure) {
         failures[tool] = failure
         ToastController.shared.show(
-            Toast(systemImage: "exclamationmark.triangle", title: "Couldn’t install \(tool.name)", subtitle: failure.message),
+            Toast(systemImage: "exclamationmark.triangle", title: LF("Couldn’t install %@", String(describing: tool.name)), subtitle: failure.message),
             for: .seconds(5)
         )
     }

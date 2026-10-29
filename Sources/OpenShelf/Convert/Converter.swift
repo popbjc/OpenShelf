@@ -7,8 +7,8 @@ enum ConversionError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unsupported(let detail): "This conversion isn’t supported: \(detail)."
-        case .unreadable(let url): "“\(url.lastPathComponent)” couldn’t be read."
+        case .unsupported(let detail): LF("This conversion isn’t supported: %@.", String(describing: detail))
+        case .unreadable(let url): LF("“%@” couldn’t be read.", String(describing: url.lastPathComponent))
         case .failed(let detail): detail
         }
     }
@@ -76,7 +76,7 @@ enum Converter {
         case .subtitle:
             return [try SubtitleConversion.convert(source, to: format)]
         case .archive, .folder, .other:
-            throw ConversionError.unsupported("\(source.pathExtension.uppercased()) to \(format.title)")
+            throw ConversionError.unsupported(LF("%@ to %@", String(describing: source.pathExtension.uppercased()), String(describing: format.title)))
         }
     }
 }

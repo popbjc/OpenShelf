@@ -212,7 +212,7 @@ private struct StepPage: View {
                     .tracking(0.6)
                     .foregroundStyle(Color.accentColor)
             }
-            Text(step == .welcome ? (model.isReturning ? "New: Learn OpenShelf Hands-On" : "Welcome to OpenShelf") : step.title)
+            Text(step == .welcome ? (model.isReturning ? L("New: Learn OpenShelf Hands-On") : L("Welcome to OpenShelf")) : step.title)
                 .font(.system(size: 26, weight: .bold))
             Text(step.summary)
                 .font(.system(size: 14))
@@ -230,9 +230,9 @@ private struct WelcomePage: View {
             Text("Everything starts with a drag. Start dragging any file, keep holding, and tap a key:")
                 .font(.system(size: 13))
             VStack(spacing: 10) {
-                GestureRow(kind: .convert, title: "Convert", detail: "Turn it into JPG, PNG, PDF, DOCX, MP3, ZIP…")
-                GestureRow(kind: .tools, title: "Tools", detail: "Crop, annotate, compress, trim, split PDFs…")
-                GestureRow(kind: .actions, title: "Actions", detail: "Put it on a shelf, AirDrop, copy, move…")
+                GestureRow(kind: .convert, title: L("Convert"), detail: L("Turn it into JPG, PNG, PDF, DOCX, MP3, ZIP…"))
+                GestureRow(kind: .tools, title: L("Tools"), detail: L("Crop, annotate, compress, trim, split PDFs…"))
+                GestureRow(kind: .actions, title: L("Actions"), detail: L("Put it on a shelf, AirDrop, copy, move…"))
             }
             HStack(spacing: 8) {
                 if model.isReady {
@@ -284,7 +284,7 @@ private struct PracticePage: View {
                     PracticeTray(
                         file: file,
                         model: model,
-                        nudge: step == .keyboard ? "Select me in Finder" : "Drag me",
+                        nudge: step == .keyboard ? L("Select me in Finder") : L("Drag me"),
                         isWaiting: !isDone && !progress.isUnderWay
                     )
                 }
@@ -325,7 +325,7 @@ private struct FinishPage: View {
                             .symbolRenderingMode(.multicolor)
                     }
                     .buttonStyle(.plain)
-                    .help(isDone ? "Done. Try it again." : "Try this one.")
+                    .help(isDone ? "Done. Try it again." : L("Try this one."))
                 }
             }
             .font(.system(size: 13))
@@ -370,7 +370,7 @@ private struct FinishPage: View {
         let done = progress.practiceDoneCount
         let total = TourStep.practice.count
         if done == total {
-            return "You’ve tried everything. OpenShelf lives in the menu bar; drag any file and tap a key whenever you need it."
+            return L("You’ve tried everything. OpenShelf lives in the menu bar; drag any file and tap a key whenever you need it.")
         }
         return "You’ve tried \(done) of \(total). The rest are waiting below, and the tour is in the menu bar whenever you want it."
     }
@@ -546,7 +546,7 @@ private struct StatusBanner: View {
         if isUnderWay, let wheel = step.wheel {
             return "The \(wheel.shortTitle) wheel is open. Now drop on **\(step.target)**."
         }
-        return "Waiting for you to try it…"
+        return L("Waiting for you to try it…")
     }
 }
 
@@ -639,33 +639,33 @@ enum TourInstructions {
         switch step {
         case .keyboard:
             let letter = step.practiceFile.map(model.url(of:))
-            var press = TourInstruction(text: "Press the shortcut. The Convert wheel opens at the pointer.")
+            var press = TourInstruction(text: L("Press the shortcut. The Convert wheel opens at the pointer."))
             if let combo = Preferences.shared.openWheelShortcut {
                 press.keys = [combo.displayString]
             } else {
-                press.text = "Set a shortcut to open the wheel, then press it."
-                press.action = ("Set a Shortcut…", { SettingsWindowController.shared.show(tab: .wheels) })
+                press.text = L("Set a shortcut to open the wheel, then press it.")
+                press.action = (L("Set a Shortcut…"), { SettingsWindowController.shared.show(tab: .wheels) })
             }
             var select = TourInstruction(text: "Select \(name) in Finder (or files on a shelf).")
             if let letter {
-                select.action = ("Show It in Finder", { FileActions.reveal([letter]) })
+                select.action = (L("Show It in Finder"), { FileActions.reveal([letter]) })
             }
             return [
                 select,
                 press,
-                TourInstruction(text: "Use the arrow keys and **Return** to run a wedge, or **Tab** to switch wheels. **Esc** closes."),
+                TourInstruction(text: L("Use the arrow keys and **Return** to run a wedge, or **Tab** to switch wheels. **Esc** closes.")),
             ]
         case .options:
             return [
                 TourInstruction(text: "Drag \(name) and keep holding."),
-                TourInstruction(text: "Tap the Convert keys.", keys: step.wheel.map(keys(for:)) ?? []),
+                TourInstruction(text: L("Tap the Convert keys."), keys: step.wheel.map(keys(for:)) ?? []),
                 TourInstruction(text: "Hold **⌥ Option** as you drop on **\(step.target)**, and choose the quality and size for this one conversion."),
             ]
         default:
             guard let wheel = step.wheel else { return [] }
             return [
                 TourInstruction(text: "Drag \(name) from here and keep holding the mouse button."),
-                TourInstruction(text: "While you’re dragging, tap these keys. No need to keep holding them.", keys: keys(for: wheel)),
+                TourInstruction(text: L("While you’re dragging, tap these keys. No need to keep holding them."), keys: keys(for: wheel)),
                 TourInstruction(text: "Drop on **\(step.target)**."),
             ]
         }
@@ -673,28 +673,28 @@ enum TourInstructions {
 
     static func tip(for step: TourStep) -> String? {
         switch step {
-        case .convert: "Results are saved next to the original, and nothing is ever overwritten. Arrow keys and Return work too, while you’re still dragging; Esc cancels."
-        case .markdown: "Headings, lists, tables, code and footnotes come out typeset. Try DOCX or HTML too."
-        case .tools: "Tools open a small editor that saves a copy, like “Mountain Lake Cropped.jpg”. Drag several photos to edit them all at once."
-        case .pdf: "Drag a PDF and an image together to Combine them into one PDF."
-        case .video: "Tap the Convert keys instead to make a GIF, or an MP4 from the MOV."
-        case .shelf: "Drag files out of a shelf into any app. Space previews them, and a shelf can dock to the edge of the screen."
-        case .keyboard: "Hold ⌘ in a keyboard wheel to see a number on every wedge, then press it."
-        case .options: "Settings → Output sets the quality, size and codec for every conversion."
+        case .convert: L("Results are saved next to the original, and nothing is ever overwritten. Arrow keys and Return work too, while you’re still dragging; Esc cancels.")
+        case .markdown: L("Headings, lists, tables, code and footnotes come out typeset. Try DOCX or HTML too.")
+        case .tools: L("Tools open a small editor that saves a copy, like “Mountain Lake Cropped.jpg”. Drag several photos to edit them all at once.")
+        case .pdf: L("Drag a PDF and an image together to Combine them into one PDF.")
+        case .video: L("Tap the Convert keys instead to make a GIF, or an MP4 from the MOV.")
+        case .shelf: L("Drag files out of a shelf into any app. Space previews them, and a shelf can dock to the edge of the screen.")
+        case .keyboard: L("Hold ⌘ in a keyboard wheel to see a number on every wedge, then press it.")
+        case .options: L("Settings → Output sets the quality, size and codec for every conversion.")
         case .welcome, .finish: nil
         }
     }
 
     static func success(for step: TourStep) -> String {
         switch step {
-        case .convert: "Nicely done! The new file is next to the original."
-        case .markdown: "There’s your PDF, properly typeset."
-        case .tools: "That’s the Tools wheel. Save in the editor to keep a copy."
-        case .pdf: "PDFs handled."
-        case .video: "Clip handled."
-        case .shelf: "Your files are on a shelf. Drag them out whenever you’re ready."
-        case .keyboard: "That’s the wheel without a drag."
-        case .options: "Those settings are for this conversion only."
+        case .convert: L("Nicely done! The new file is next to the original.")
+        case .markdown: L("There’s your PDF, properly typeset.")
+        case .tools: L("That’s the Tools wheel. Save in the editor to keep a copy.")
+        case .pdf: L("PDFs handled.")
+        case .video: L("Clip handled.")
+        case .shelf: L("Your files are on a shelf. Drag them out whenever you’re ready.")
+        case .keyboard: L("That’s the wheel without a drag.")
+        case .options: L("Those settings are for this conversion only.")
         case .welcome, .finish: ""
         }
     }

@@ -55,7 +55,7 @@ struct ResizeRule: Equatable, Sendable {
 
     /// Why an image is left as it is, as in "1 resized · 2 already smaller".
     var unchangedLabel: String {
-        allowsEnlarging ? "already that size" : "already smaller"
+        allowsEnlarging ? L("already that size") : L("already smaller")
     }
 }
 
@@ -65,7 +65,7 @@ enum ResizeError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .failed:
-            "The image couldn’t be resized."
+            L("The image couldn’t be resized.")
         }
     }
 }
@@ -92,7 +92,7 @@ enum ImageResizer {
     /// with metadata kept and its pixel dimensions updated.
     static func save(_ resized: CGImage, for image: EditableImage) throws -> URL {
         let type = EditableImage.writableTypes.contains(image.type) ? image.type : .png
-        let destination = OutputNaming.destination(for: image.url, suffix: "Resized", pathExtension: image.pathExtension(for: type))
+        let destination = OutputNaming.destination(for: image.url, suffix: L("Resized"), pathExtension: image.pathExtension(for: type))
         var metadata = image.properties
         if var exif = metadata[kCGImagePropertyExifDictionary] as? [CFString: Any] {
             exif[kCGImagePropertyExifPixelXDimension] = resized.width
@@ -106,7 +106,7 @@ enum ImageResizer {
     /// Resizes and saves each image; images whose size wouldn't change are
     /// left alone and counted.
     static func run(_ images: [EditableImage], rule: ResizeRule) throws -> SaveOutcome {
-        var outcome = SaveOutcome(saved: [], savedLabel: "resized", unchangedLabel: rule.unchangedLabel)
+        var outcome = SaveOutcome(saved: [], savedLabel: L("resized"), unchangedLabel: rule.unchangedLabel)
         for image in images {
             let target = rule.targetSize(for: image.pixelSize)
             guard target != image.pixelSize else {
@@ -154,8 +154,8 @@ struct ResizeEditor: View {
 
     var body: some View {
         EditorChrome(
-            title: "Resize",
-            primaryTitle: "Resize",
+            title: L("Resize"),
+            primaryTitle: L("Resize"),
             isPrimaryEnabled: !isWorking && changingCount > 0,
             actions: actions,
             onReset: reset,
@@ -171,7 +171,7 @@ struct ResizeEditor: View {
                     presetButton("3840 px") { rule.mode = .longEdge; rule.longEdge = 3840 }
                 }
 
-                EditorRow(label: "Resize by") {
+                EditorRow(label: L("Resize by")) {
                     Picker("Resize by", selection: $rule.mode) {
                         Text("Percent").tag(ResizeRule.Mode.percent)
                         Text("Long side").tag(ResizeRule.Mode.longEdge)
@@ -185,7 +185,7 @@ struct ResizeEditor: View {
                 case .percent:
                     EditorSlider(label: "Scale", value: $rule.percent, range: 5...(rule.allowsEnlarging ? 400 : 100), unit: "%")
                 case .longEdge:
-                    EditorRow(label: "Long side") {
+                    EditorRow(label: L("Long side")) {
                         TextField("Pixels", value: $rule.longEdge, format: .number.grouping(.never))
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 90)
@@ -226,7 +226,7 @@ struct ResizeEditor: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(images.count == 1 ? first?.url.lastPathComponent ?? "" : "\(images.count) images")
+                Text(images.count == 1 ? first?.url.lastPathComponent ?? "" : LF("%@ images", String(describing: images.count)))
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -240,7 +240,7 @@ struct ResizeEditor: View {
     }
 
     private var exactFields: some View {
-        EditorRow(label: "Size") {
+        EditorRow(label: L("Size")) {
             Text("W").foregroundStyle(.secondary)
             TextField("Width", value: widthBinding, format: .number.grouping(.never))
                 .frame(width: 72)
@@ -252,7 +252,7 @@ struct ResizeEditor: View {
                 Image(systemName: keepsProportions ? "lock.fill" : "lock.open")
             }
             .toggleStyle(.button)
-            .help(keepsProportions ? "Proportions are kept — height follows width" : "Set width and height freely")
+            .help(keepsProportions ? L("Proportions are kept — height follows width") : L("Set width and height freely"))
             .accessibilityLabel("Keep proportions")
             .onChange(of: keepsProportions) { _, locked in
                 if locked { rule.height = 0 } else if let first { rule.height = Int(rule.targetSize(for: first.pixelSize).height) }
